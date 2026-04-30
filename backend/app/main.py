@@ -23,6 +23,7 @@ from . import models_new  # noqa: F401 — import to register new table models
 from .routers.auth import router as auth_router
 from .routers.content import router as content_router
 from .routers.user_api import router as user_router
+from .routers.portal import router as portal_router
 
 app = FastAPI(
     title="FDA Warning Letter API",
@@ -51,6 +52,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(content_router)
 app.include_router(user_router)
+app.include_router(portal_router)
 
 # 简单内存缓存（生产环境建议使用 Redis）
 cache = {}

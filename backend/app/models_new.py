@@ -65,6 +65,8 @@ class Article(Base):
     access_level = Column(String(20), default='free') # free/pro/enterprise
     view_count = Column(Integer, default=0)
     like_count = Column(Integer, default=0)
+    is_headline = Column(Integer, default=0)          # 是否为头条新闻 0/1
+    hot_score = Column(Integer, default=0)            # 热度分
     seo_title = Column(String(200))
     seo_description = Column(String(500))
     published_at = Column(DateTime)
@@ -115,3 +117,21 @@ class ReadHistory(Base):
     article_id = Column(Integer, ForeignKey('articles.id'))
     read_at = Column(DateTime, default=datetime.utcnow)
     read_duration = Column(Integer)                   # 阅读时长（秒）
+
+
+class Subscription(Base):
+    """邮件订阅"""
+    __tablename__ = 'subscriptions'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True, nullable=False)
+    name = Column(String(100))
+    sectors = Column(Text)  # JSON数组: ["pharma", "cosmetics", "food"]
+    is_active = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_notified_at = Column(DateTime)
+
+
+# 给Article添加is_headline字段
+# 注意：这个字段需要在数据库迁移时添加
+# ALTER TABLE articles ADD COLUMN is_headline BOOLEAN DEFAULT false;
