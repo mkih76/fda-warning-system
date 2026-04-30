@@ -53,7 +53,22 @@
 
           <!-- Right actions -->
           <div class="pf-header-actions">
-            <router-link to="/letters" class="pf-btn pf-btn-primary">开始探索</router-link>
+            <template v-if="isLoggedIn">
+              <div class="pf-user-menu" @mouseenter="showUserMenu = true" @mouseleave="showUserMenu = false">
+                <button class="pf-user-btn">
+                  <span class="pf-user-avatar">{{ user?.nickname?.[0] || 'U' }}</span>
+                  <span class="pf-user-name">{{ user?.nickname || '用户' }}</span>
+                </button>
+                <div class="pf-user-dropdown" v-show="showUserMenu">
+                  <router-link to="/favorites" class="pf-dropdown-item" @click="showUserMenu = false">我的收藏</router-link>
+                  <a class="pf-dropdown-item" @click="handleLogout">退出登录</a>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <router-link to="/login" class="pf-btn pf-btn-outline">登录</router-link>
+              <router-link to="/register" class="pf-btn pf-btn-primary">注册</router-link>
+            </template>
           </div>
 
           <!-- Mobile toggle -->
@@ -91,14 +106,24 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useFavorites } from '../composables/useFavorites.js'
+import { useAuth } from '../composables/useAuth.js'
 
 const route = useRoute()
+const router = useRouter()
 const { favoritesCount } = useFavorites()
+const { user, isLoggedIn, logout } = useAuth()
 const isScrolled = ref(false)
 const mobileOpen = ref(false)
 const activeDropdown = ref(null)
+const showUserMenu = ref(false)
+
+function handleLogout() {
+  logout()
+  showUserMenu.value = false
+  router.push('/')
+}
 
 const handleScroll = () => { isScrolled.value = window.scrollY > 10 }
 onMounted(() => window.addEventListener('scroll', handleScroll))
@@ -269,6 +294,77 @@ a.pf-utility-link:hover { color: #0000C9; }
 
 /* Header actions */
 .pf-header-actions { display: flex; align-items: center; gap: 12px; }
+
+.pf-btn-outline {
+  background: transparent;
+  color: #0000C9;
+  border: 1px solid #0000C9;
+}
+
+.pf-btn-outline:hover {
+  background: rgba(0,0,201,0.05);
+}
+
+/* User menu */
+.pf-user-menu { position: relative; }
+
+.pf-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.pf-user-btn:hover { border-color: #0000C9; }
+
+.pf-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0000C9;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pf-user-name { font-size: 14px; color: #333; font-weight: 500; }
+
+.pf-user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  border-radius: 4px;
+  padding: 8px 0;
+  z-index: 100;
+}
+
+.pf-user-dropdown .pf-dropdown-item {
+  display: block;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pf-user-dropdown .pf-dropdown-item:hover {
+  background: #F2F9FC;
+  color: #0000C9;
+}
 
 /* Buttons */
 .pf-btn {

@@ -84,10 +84,24 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+
+const API = window.location.origin + '/api'
 
 const props = defineProps({
   sector: { type: String, required: true }
+})
+
+const apiArticles = ref([])
+
+onMounted(async () => {
+  try {
+    const resp = await fetch(`${API}/content/sector/${props.sector}`)
+    if (resp.ok) {
+      const data = await resp.json()
+      apiArticles.value = data.latest_articles || []
+    }
+  } catch (e) { /* silent */ }
 })
 
 const sectorConfigs = {
@@ -162,12 +176,22 @@ const sectorConfigs = {
 const sectorConfig = computed(() => sectorConfigs[props.sector])
 const heroGradient = computed(() => `linear-gradient(135deg, ${sectorConfig.value.color} 0%, ${sectorConfig.value.darkColor} 100%)`)
 
-// 占位文章数据（Phase 2 后从 API 获取）
-const latestArticles = [
-  { slug: 'sample-1', date: '04.28.2026', category: '政策法规', title: '示例文章标题 — 正在建设中' },
-  { slug: 'sample-2', date: '04.25.2026', category: '知识专栏', title: '内容即将上线，敬请期待' },
-  { slug: 'sample-3', date: '04.22.2026', category: '行业动态', title: '更多内容正在准备中...' },
-]
+// Use API data if available, otherwise show placeholder
+const latestArticles = computed(() => {
+  if (apiArticles.value.length > 0) {
+    return apiArticles.value.map(a => ({
+      slug: a.slug,
+      date: a.published_at ? new Date(a.published_at).toLocaleDateString('zh-CN') : '',
+      category: a.category_name || a.sector,
+      title: a.title,
+    }))
+  }
+  return [
+    { slug: 'sample-1', date: '04.28.2026', category: '政策法规', title: '示例文章标题 — 正在建设中' },
+    { slug: 'sample-2', date: '04.25.2026', category: '知识专栏', title: '内容即将上线，敬请期待' },
+    { slug: 'sample-3', date: '04.22.2026', category: '行业动态', title: '更多内容正在准备中...' },
+  ]
+})
 </script>
 
 <style scoped>

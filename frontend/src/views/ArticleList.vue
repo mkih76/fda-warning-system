@@ -68,12 +68,37 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+
+const API = window.location.origin + '/api'
 
 const props = defineProps({ sector: { type: String, required: true } })
 const route = useRoute()
 const searchQuery = ref('')
+const apiArticles = ref([])
+const totalArticles = ref(0)
+const loading = ref(false)
+
+async function fetchArticles() {
+  loading.value = true
+  try {
+    const params = new URLSearchParams()
+    params.set('sector', props.sector)
+    if (route.params.category) params.set('category', route.params.category)
+    if (searchQuery.value) params.set('search', searchQuery.value)
+    const resp = await fetch(`${API}/content/articles?${params}`)
+    if (resp.ok) {
+      const data = await resp.json()
+      apiArticles.value = data.items || []
+      totalArticles.value = data.total || 0
+    }
+  } catch (e) { /* silent */ }
+  loading.value = false
+}
+
+onMounted(fetchArticles)
+watch(() => route.params.category, fetchArticles)
 
 const sectorNames = { pharma: '制药', cosmetics: '化妆品', food: '食品' }
 const sectorName = computed(() => sectorNames[props.sector] || props.sector)
@@ -117,8 +142,8 @@ const sectorCategories = {
 
 const categories = computed(() => sectorCategories[props.sector] || [])
 
-// 占位文章（Phase 2 后从 API 获取）
-const articles = []
+// Articles from API
+const articles = computed(() => apiArticles.value)
 </script>
 
 <style scoped>

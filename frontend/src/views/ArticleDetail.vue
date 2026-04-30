@@ -53,21 +53,40 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const API = window.location.origin + '/api'
 
 const props = defineProps({ sector: { type: String, required: true } })
+const route = useRoute()
 
 const sectorNames = { pharma: '制药', cosmetics: '化妆品', food: '食品' }
 const sectorName = computed(() => sectorNames[props.sector] || props.sector)
 
-const article = {
-  title: '示例文章',
-  category: '知识专栏',
-  date: '2026-04-30',
-  views: 0,
-  summary: '内容建设中...',
-  contentHtml: ''
-}
+const article = ref({
+  title: '加载中...',
+  category_name: '',
+  published_at: '',
+  view_count: 0,
+  summary: '',
+  content: '',
+  content_html: '',
+})
+
+const loading = ref(true)
+
+onMounted(async () => {
+  const slug = route.params.slug
+  if (!slug) { loading.value = false; return }
+  try {
+    const resp = await fetch(`${API}/content/articles/${slug}`)
+    if (resp.ok) {
+      article.value = await resp.json()
+    }
+  } catch (e) { /* silent */ }
+  loading.value = false
+})
 </script>
 
 <style scoped>
