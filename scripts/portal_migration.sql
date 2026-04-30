@@ -105,6 +105,42 @@ ORDER BY hot_score DESC, view_count DESC
 LIMIT 100;
 
 -- ==============================================
+-- Phase 2: RSS相关字段
+-- ==============================================
+
+-- 9. 给articles表添加RSS相关字段
+ALTER TABLE articles ADD COLUMN source_type VARCHAR(20) DEFAULT 'manual';
+ALTER TABLE articles ADD COLUMN source_name VARCHAR(100);
+ALTER TABLE articles ADD COLUMN source_url VARCHAR(500);
+ALTER TABLE articles ADD COLUMN original_url VARCHAR(500);
+ALTER TABLE articles ADD COLUMN language VARCHAR(10) DEFAULT 'zh';
+ALTER TABLE articles ADD COLUMN content_hash VARCHAR(32);
+
+-- 10. 创建索引（RSS相关）
+CREATE INDEX IF NOT EXISTS idx_articles_source_type ON articles(source_type);
+CREATE INDEX IF NOT EXISTS idx_articles_content_hash ON articles(content_hash);
+CREATE INDEX IF NOT EXISTS idx_articles_original_url ON articles(original_url);
+
+-- 11. 创建RSS同步日志表
+CREATE TABLE IF NOT EXISTS rss_sync_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sync_type VARCHAR(20) NOT NULL,  -- full/sector/manual
+    sector VARCHAR(50),
+    total_fetched INTEGER DEFAULT 0,
+    total_saved INTEGER DEFAULT 0,
+    total_skipped INTEGER DEFAULT 0,
+    errors INTEGER DEFAULT 0,
+    started_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'running',  -- running/completed/failed
+    error_message TEXT
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_rss_sync_logs_started ON rss_sync_logs(started_at);
+CREATE INDEX IF NOT EXISTS idx_rss_sync_logs_status ON rss_sync_logs(status);
+
+-- ==============================================
 -- 迁移完成
 -- ==============================================
 
