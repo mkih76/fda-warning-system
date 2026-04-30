@@ -11,12 +11,12 @@ const router = createRouter({
     {
       path: '/letters',
       name: 'letters',
-      component: () => import('../views/Letters.vue'),
+      component: () => import('../views/LettersNew.vue'),
     },
     {
       path: '/letters/:id',
       name: 'letter-detail',
-      component: () => import('../views/LetterDetail.vue'),
+      component: () => import('../views/LetterDetailNew.vue'),
     },
     {
       path: '/dashboard',
