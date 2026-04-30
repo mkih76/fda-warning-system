@@ -1,8 +1,9 @@
 /**
  * PubMed API Collector
- * 采集制药相关学术文献
+ * 采集制药学术文献 — 翻译标题为中文，保留原文链接
  */
 const https = require('https');
+const { translate } = require('../translator');
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
@@ -22,22 +23,22 @@ const SEARCH_QUERIES = [
   {
     category: 'gmp-practice',
     terms: ['pharmaceutical manufacturing GMP', 'drug GMP compliance'],
-    label: 'GMP实务',
+    labelZh: 'GMP实务',
   },
   {
     category: 'quality-control',
     terms: ['HPLC pharmaceutical analysis', 'pharmaceutical quality control method'],
-    label: '质量控制',
+    labelZh: '质量控制',
   },
   {
     category: 'process-validation',
     terms: ['pharmaceutical process validation', 'sterile drug manufacturing validation'],
-    label: '工艺验证',
+    labelZh: '工艺验证',
   },
   {
     category: 'pharmacopoeia',
     terms: ['pharmacopoeia monograph update', 'USP EP pharmaceutical standard'],
-    label: '药典解读',
+    labelZh: '药典解读',
   },
 ];
 
@@ -62,11 +63,6 @@ async function searchPubMed(term, maxResults = 5) {
   return ids.map(id => summary.result?.[id]).filter(Boolean);
 }
 
-function translateTitle(title) {
-  // 简单的标题处理，保留英文原标题，加中文说明
-  return title;
-}
-
 async function collect(limit = 8) {
   console.log('[PubMed] 采集制药学术文献...');
   const articles = [];
@@ -80,16 +76,21 @@ async function collect(limit = 8) {
           if (!paper.title || seen.has(paper.uid)) continue;
           seen.add(paper.uid);
 
-          const title = paper.title;
+          const titleEn = paper.title;
           const slug = `pubmed-${paper.uid}`;
           const authors = (paper.authors || []).map(a => a.name).slice(0, 5).join(', ');
           const journal = paper.fulljournalname || paper.source || '';
           const pubDate = paper.pubdate || '';
           const doi = paper.elocationid || '';
+          const pubmedUrl = `https://pubmed.ncbi.nlm.nih.gov/${paper.uid}/`;
 
-          const summary = title.length > 120 ? title.substring(0, 120) + '...' : title;
+          // 翻译标题
+          console.log(`[PubMed] 翻译: ${titleEn.substring(0, 50)}...`);
+          const titleZh = await translate(titleEn);
 
-          const content = `# ${title}
+          const summary = titleZh.length > 120 ? titleZh.substring(0, 120) + '...' : titleZh;
+
+          const content = `# ${query.labelZh}前沿：${titleZh}
 
 ## 文献信息
 
@@ -99,26 +100,29 @@ async function collect(limit = 8) {
 | **期刊** | ${journal} |
 | **发表日期** | ${pubDate} |
 | **PMID** | ${paper.uid} |
-| ${doi ? `**DOI** | ${doi} |` : ''}
+${doi ? `| **DOI** | ${doi} |` : ''}
 
-## 摘要
+## 原始标题（英文）
 
-${paper.title}
+${titleEn}
 
-本文献涉及 ${query.label} 领域，收录于 PubMed 数据库（PMID: ${paper.uid}）。
+## 内容说明
+
+*（本文献信息由AI整理翻译，标题为机器翻译，如需准确表述请参考原文）*
+
+本文献属于${query.labelZh}领域研究论文，收录于 PubMed 数据库。
 
 ## 对行业从业者的参考价值
 
-本文献为制药行业${query.label}相关的研究论文，可作为以下用途的参考资料：
-- 质量管理体系的持续改进
-- 培训材料和知识更新
-- 合规策略的制定依据
+- 可作为质量管理体系持续改进的参考资料
+- 可用于培训材料和知识更新
+- 可为合规策略的制定提供依据
 
-> 数据来源：PubMed / NCBI（PMID: ${paper.uid}）
-> 原文可通过 PubMed 获取：https://pubmed.ncbi.nlm.nih.gov/${paper.uid}/`;
+> **数据来源**：PubMed / NCBI
+> **原文链接**：[${titleEn}](${pubmedUrl})`;
 
           articles.push({
-            title: `${query.label}前沿：${title.substring(0, 60)}`,
+            title: `${query.labelZh}前沿：${titleZh.substring(0, 60)}`,
             slug,
             category: query.category,
             summary,
@@ -134,7 +138,7 @@ ${paper.title}
       }
       if (articles.length >= limit) break;
     } catch (e) {
-      console.error(`[PubMed] 搜索 "${query.label}" 失败:`, e.message);
+      console.error(`[PubMed] 搜索 "${query.labelZh}" 失败:`, e.message);
     }
   }
 

@@ -1,8 +1,9 @@
 /**
  * EMA (European Medicines Agency) RSS Collector
- * 采集欧洲药品管理局新闻
+ * 采集欧洲药管局新闻 — 全部翻译为中文
  */
 const https = require('https');
+const { translate } = require('../translator');
 
 const EMA_RSS = 'https://www.ema.europa.eu/en/news.xml';
 
@@ -80,36 +81,47 @@ async function collect(limit = 10) {
   const xml = await fetchURL(EMA_RSS);
   const items = parseRSSItems(xml).slice(0, limit);
 
-  const articles = items.map(item => {
-    const title = `EMA：${item.title}`;
-    const slug = `ema-${slugify(item.title)}`;
-    const category = guessCategory(item.title, item.description);
+  const articles = [];
+
+  for (const item of items) {
     const desc = cleanHTML(item.description);
+    const category = guessCategory(item.title, item.description);
 
-    const content = `# ${title}
+    // 翻译标题和描述
+    console.log(`[EMA] 翻译: ${item.title.substring(0, 50)}...`);
+    const [titleZh, descZh] = await Promise.all([
+      translate(item.title),
+      translate(desc || item.title),
+    ]);
 
-${desc ? `${desc}` : ''}
+    const slug = `ema-${slugify(item.title)}`;
+
+    const content = `# EMA：${titleZh}
+
+${descZh}
 
 ## 背景
+
+*（以下内容由AI基于新闻摘要生成，仅供参考）*
 
 欧洲药品管理局（EMA）是欧盟负责药品科学评估、监督和安全监测的机构。EMA 的监管决定影响所有欧盟成员国以及欧洲经济区国家。
 
 对于出口欧洲的中国制药企业而言，EMA 的政策动态和监管趋势值得密切关注。
 
-> 来源：EMA 官方新闻（${item.pubDate || '日期未知'}）
-> 原文链接：${item.link}`;
+> **来源**：EMA 官方新闻（${item.pubDate || '日期未知'}）
+> **原文**（英文）：[${item.title}](${item.link})`;
 
-    return {
-      title,
+    articles.push({
+      title: `EMA：${titleZh}`,
       slug,
       category,
-      summary: desc ? desc.substring(0, 100) : `EMA发布新闻：${item.title}`,
+      summary: descZh ? descZh.substring(0, 150) : `EMA发布新闻：${titleZh}`,
       content,
       access: 'free',
       source: 'ema-rss',
       sourceId: slugify(item.title),
-    };
-  });
+    });
+  }
 
   console.log(`[EMA] 获取 ${articles.length} 篇新闻`);
   return articles;

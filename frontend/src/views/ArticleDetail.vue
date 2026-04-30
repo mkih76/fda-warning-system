@@ -142,9 +142,15 @@ onMounted(async () => {
 
 .detail-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 60px;
+  grid-template-columns: 1fr 260px;
+  gap: 48px;
   padding: 40px 0 80px;
+  justify-items: center;
+}
+
+.article-body {
+  width: 100%;
+  max-width: 780px;
 }
 
 .article-body h1 {

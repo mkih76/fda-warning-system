@@ -1,8 +1,9 @@
 /**
  * FDA openFDA API Collector
- * 采集药品执法/召回、不良事件等数据
+ * 采集药品执法/召回、不良事件等数据 — 翻译为中文，AI分析内容标注
  */
 const https = require('https');
+const { translate } = require('../translator');
 
 const FDA_BASE = 'https://api.fda.gov';
 
@@ -44,14 +45,21 @@ async function collectDrugEnforcement(limit = 10) {
 
   const articles = [];
   for (const item of data.results) {
-    const title = `FDA I类药品召回：${item.product_description?.substring(0, 60) || '未命名产品'}`;
-    const slug = `fda-recall-${item.recall_number || slugify(title)}`;
     const date = formatDate(item.report_date);
     const firm = item.recalling_firm || '未知企业';
-    const reason = item.reason_for_recall || '未说明';
-    const product = item.product_description || '';
+    const reasonEn = item.reason_for_recall || '未说明';
+    const productEn = item.product_description || '';
     const distribution = item.distribution_pattern || '';
     const quantity = item.product_quantity || '';
+
+    // 翻译关键字段
+    const [reasonZh, productZh] = await Promise.all([
+      translate(reasonEn),
+      translate(productEn.substring(0, 200)),
+    ]);
+
+    const title = `FDA I类药品召回：${productZh.substring(0, 60) || '未命名产品'}`;
+    const slug = `fda-recall-${item.recall_number || slugify(title)}`;
 
     const content = `# ${title}
 
@@ -61,15 +69,19 @@ ${date ? `**报告日期**：${date}` : ''}
 
 **召回企业**：${firm}
 
-**产品描述**：${product}
+**产品描述**：${productZh}
 
-**召回原因**：${reason}
+${productEn !== productZh ? `**产品原文**：${productEn}` : ''}
+
+**召回原因**：${reasonZh}
 
 ${distribution ? `**分销范围**：${distribution}` : ''}
 
 ${quantity ? `**召回数量**：${quantity}` : ''}
 
 ## 事件分析
+
+*（以下分析由AI基于公开数据生成，仅供参考）*
 
 本次召回属于 FDA Class I 级别，意味着使用或接触该产品有合理的可能导致严重的不良健康后果或死亡。
 
@@ -78,7 +90,7 @@ FDA 将药品召回分为三个等级：
 - **Class II**：可能导致暂时或可逆的健康后果
 - **Class III**：不太可能导致健康后果，但违反了 FDA 法规
 
-本次召回的直接原因是：${reason}
+本次召回的直接原因是：${reasonZh}
 
 ## 对制药企业的启示
 
@@ -86,13 +98,14 @@ FDA 将药品召回分为三个等级：
 2. 原辅料和成品的质量控制是防止类似事件的关键
 3. 发现质量问题后应主动召回，配合 FDA 的监管要求
 
-> 数据来源：FDA openFDA Drug Enforcement API（召回编号：${item.recall_number || 'N/A'}）`;
+> **数据来源**：FDA openFDA Drug Enforcement API（召回编号：${item.recall_number || 'N/A'}）
+> **原文链接**：[FDA Enforcement Reports](https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts)`;
 
     articles.push({
       title,
       slug,
       category: 'industry-news',
-      summary: `FDA发布I类药品召回通知：${firm}召回${product.substring(0, 40)}，原因为${reason.substring(0, 40)}`,
+      summary: `FDA发布I类药品召回通知：${firm}召回${productZh.substring(0, 40)}，原因为${reasonZh.substring(0, 40)}`,
       content,
       access: 'free',
       source: 'fda-openfda',
@@ -123,6 +136,8 @@ async function collectAdverseEvents(limit = 50) {
   const content = `# FDA 药物不良事件年度报告分析：高风险药物盘点
 
 ## 数据来源
+
+*（本文由AI基于FDA公开数据自动分析生成，仅供行业参考）*
 
 本文基于 FDA 不良事件报告系统（FAERS）数据，分析近期严重不良事件报告中的高风险药物。
 
@@ -174,6 +189,8 @@ async function collectRecallTrends() {
 
   const content = `# FDA 药品召回趋势分析：${new Date().getFullYear()}年数据回顾
 
+*（本文由AI基于FDA公开数据自动分析生成，仅供行业参考）*
+
 ## 召回分级统计
 
 | 召回等级 | 数量 | 占比 | 风险程度 |
@@ -197,7 +214,8 @@ async function collectRecallTrends() {
 
 药品召回不仅是企业面临的监管风险，更是对患者安全的直接威胁。质量管理体系的有效运行是预防召回的核心。企业应重视偏差管理、CAPA系统和变更控制，从源头降低召回风险。
 
-> 数据来源：FDA openFDA Drug Enforcement API`;
+> **数据来源**：FDA openFDA Drug Enforcement API
+> **原文链接**：[FDA Drug Enforcement Reports](https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts)`;
 
   return [{
     title: `FDA 药品召回趋势分析：${new Date().getFullYear()}年数据回顾`,
