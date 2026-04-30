@@ -14,6 +14,150 @@ from ..database import get_db
 from ..models_new import Article, Category, User
 from .auth import get_current_user, require_user, require_admin
 
+import re
+
+
+def markdown_to_html(md_text: str) -> str:
+    """Convert Markdown to HTML with proper formatting."""
+    if not md_text:
+        return ""
+
+    lines = md_text.split('\n')
+    html_lines = []
+    in_table = False
+    table_rows = []
+    in_list = False
+    list_type = None  # 'ul' or 'ol'
+    in_blockquote = False
+
+    def flush_list():
+        nonlocal in_list, list_type
+        if in_list:
+            tag = list_type or 'ul'
+            html_lines.append(f'</{tag}>')
+            in_list = False
+            list_type = None
+
+    def flush_blockquote():
+        nonlocal in_blockquote
+        if in_blockquote:
+            html_lines.append('</blockquote>')
+            in_blockquote = False
+
+    def flush_table():
+        nonlocal in_table, table_rows
+        if in_table and table_rows:
+            html_lines.append('<table>')
+            for i, row in enumerate(table_rows):
+                cells = [c.strip() for c in row.strip('|').split('|')]
+                tag = 'th' if i == 0 else 'td'
+                row_tag = 'thead' if i == 0 else ('tbody' if i == 1 else '')
+                if i == 0:
+                    html_lines.append('<thead>')
+                if i == 1:
+                    html_lines.append('<tbody>')
+                html_lines.append('<tr>' + ''.join(f'<{tag}>{inline_format(c)}</{tag}>' for c in cells) + '</tr>')
+                if i == 0:
+                    html_lines.append('</thead>')
+            if len(table_rows) > 1:
+                html_lines.append('</tbody>')
+            html_lines.append('</table>')
+            table_rows = []
+            in_table = False
+
+    def inline_format(text):
+        """Handle inline Markdown: bold, italic, code, links."""
+        # Bold
+        text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+        # Italic
+        text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+        # Inline code
+        text = re.sub(r'`(.+?)`', r'<code>\1</code>', text)
+        # Links
+        text = re.sub(r'\[(.+?)\]\((.+?)\)', r'<a href="\2">\1</a>', text)
+        # Strikethrough
+        text = re.sub(r'~~(.+?)~~', r'<del>\1</del>', text)
+        return text
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Empty line
+        if not stripped:
+            flush_list()
+            flush_blockquote()
+            flush_table()
+            continue
+
+        # Table separator line (e.g., |---|---|)
+        if re.match(r'^\|[\s\-:|]+\|$', stripped):
+            continue  # Skip separator
+
+        # Table row
+        if stripped.startswith('|') and stripped.endswith('|'):
+            if not in_table:
+                in_table = True
+            table_rows.append(stripped)
+            continue
+        else:
+            flush_table()
+
+        # Headings
+        heading_match = re.match(r'^(#{1,6})\s+(.+)$', stripped)
+        if heading_match:
+            flush_list()
+            flush_blockquote()
+            level = len(heading_match.group(1))
+            text = inline_format(heading_match.group(2))
+            html_lines.append(f'<h{level}>{text}</h{level}>')
+            continue
+
+        # Blockquote
+        if stripped.startswith('>'):
+            if not in_blockquote:
+                in_blockquote = True
+                html_lines.append('<blockquote>')
+            text = inline_format(stripped.lstrip('> '))
+            html_lines.append(f'<p>{text}</p>')
+            continue
+        elif in_blockquote:
+            flush_blockquote()
+
+        # Unordered list
+        list_match = re.match(r'^[-*•]\s+(.+)$', stripped)
+        if list_match:
+            flush_blockquote()
+            if not in_list or list_type != 'ul':
+                flush_list()
+                html_lines.append('<ul>')
+                in_list = True
+                list_type = 'ul'
+            html_lines.append(f'<li>{inline_format(list_match.group(1))}</li>')
+            continue
+
+        # Ordered list
+        ol_match = re.match(r'^(\d+)[.)]\s+(.+)$', stripped)
+        if ol_match:
+            flush_blockquote()
+            if not in_list or list_type != 'ol':
+                flush_list()
+                html_lines.append('<ol>')
+                in_list = True
+                list_type = 'ol'
+            html_lines.append(f'<li>{inline_format(ol_match.group(2))}</li>')
+            continue
+
+        # Regular paragraph
+        flush_list()
+        flush_blockquote()
+        html_lines.append(f'<p>{inline_format(stripped)}</p>')
+
+    flush_list()
+    flush_blockquote()
+    flush_table()
+
+    return '\n'.join(html_lines)
+
 router = APIRouter(prefix="/api/content", tags=["content"])
 
 
@@ -227,12 +371,17 @@ def get_article(slug: str, db: Session = Depends(get_db)):
         author = db.query(User).filter(User.id == article.author_id).first()
         author_name = author.nickname if author else None
 
+    # Convert Markdown to HTML on-the-fly if content_html is missing
+    content_html = article.content_html
+    if not content_html and article.content:
+        content_html = markdown_to_html(article.content)
+
     return ArticleDetailResponse(
         id=article.id,
         title=article.title,
         slug=article.slug,
         content=article.content,
-        content_html=article.content_html,
+        content_html=content_html,
         summary=article.summary,
         sector=article.sector,
         category_id=article.category_id,

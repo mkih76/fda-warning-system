@@ -181,6 +181,140 @@ onMounted(async () => {
   color: #333;
 }
 
+.article-content :deep(p) {
+  margin: 0 0 20px;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.article-content :deep(h1) {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+  margin: 40px 0 16px;
+  line-height: 1.3;
+}
+
+.article-content :deep(h2) {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin: 36px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #0000C9;
+  line-height: 1.4;
+}
+
+.article-content :deep(h3) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 28px 0 12px;
+  line-height: 1.4;
+}
+
+.article-content :deep(h4) {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 24px 0 10px;
+}
+
+.article-content :deep(ul),
+.article-content :deep(ol) {
+  margin: 0 0 20px;
+  padding-left: 28px;
+}
+
+.article-content :deep(li) {
+  margin-bottom: 8px;
+  line-height: 1.7;
+}
+
+.article-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0 28px;
+  font-size: 15px;
+}
+
+.article-content :deep(thead) {
+  background: #f0f0f0;
+}
+
+.article-content :deep(th) {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #000;
+  border-bottom: 2px solid #0000C9;
+}
+
+.article-content :deep(td) {
+  padding: 10px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #333;
+}
+
+.article-content :deep(tr:hover) {
+  background: #fafafa;
+}
+
+.article-content :deep(blockquote) {
+  margin: 20px 0 24px;
+  padding: 16px 20px;
+  border-left: 4px solid #0000C9;
+  background: #f8f9fa;
+  color: #555;
+  font-size: 15px;
+}
+
+.article-content :deep(blockquote p) {
+  margin: 0 0 8px;
+}
+
+.article-content :deep(blockquote p:last-child) {
+  margin-bottom: 0;
+}
+
+.article-content :deep(strong) {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.article-content :deep(em) {
+  font-style: italic;
+}
+
+.article-content :deep(code) {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 14px;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+}
+
+.article-content :deep(a) {
+  color: #0000C9;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,201,0.3);
+}
+
+.article-content :deep(a:hover) {
+  border-bottom-color: #0000C9;
+}
+
+.article-content :deep(hr) {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 32px 0;
+}
+
+.article-content :deep(del) {
+  color: #999;
+  text-decoration: line-through;
+}
+
 .placeholder-content {
   text-align: center;
   padding: 80px 0;
