@@ -408,3 +408,57 @@ def get_sector_data(sector: str, db: Session = Depends(get_db)):
         ],
         "latest_articles": [article_to_list_item(a, db) for a in latest],
     }
+
+
+# ─── Global Search (articles + FDA letters) ───────────────────
+@router.get("/search")
+def global_search(
+    q: str = Query(..., min_length=1),
+    limit: int = Query(20, ge=1, le=50),
+    db: Session = Depends(get_db)
+):
+    """Search across articles and FDA warning letters."""
+    results = []
+
+    # Search articles
+    articles = (
+        db.query(Article)
+        .filter(
+            Article.status == "published",
+            (Article.title.ilike(f"%{q}%")) | (Article.summary.ilike(f"%{q}%"))
+        )
+        .limit(limit)
+        .all()
+    )
+    for a in articles:
+        results.append({
+            "type": "article",
+            "id": a.id,
+            "title": a.title,
+            "slug": a.slug,
+            "summary": a.summary,
+            "sector": a.sector,
+            "url": f"/{a.sector}/article/{a.slug}",
+        })
+
+    # Search FDA warning letters
+    from ..models import WarningLetter
+    letters = (
+        db.query(WarningLetter)
+        .filter(
+            (WarningLetter.company_name.ilike(f"%{q}%")) |
+            (WarningLetter.subject.ilike(f"%{q}%"))
+        )
+        .limit(limit)
+        .all()
+    )
+    for l in letters:
+        results.append({
+            "type": "letter",
+            "id": l.id,
+            "title": l.company_name,
+            "summary": l.subject,
+            "url": f"/letters/{l.id}",
+        })
+
+    return {"results": results[:limit], "total": len(results)}

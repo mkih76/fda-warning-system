@@ -53,6 +53,36 @@
       </div>
     </section>
 
+    <!-- Latest Knowledge Articles -->
+    <section v-if="latestArticles.length > 0" class="pf-section pf-section-light">
+      <div class="pf-container">
+        <div class="pf-section-header">
+          <h4 class="pf-eyebrow">知识输出</h4>
+          <h2>最新知识文章</h2>
+          <p>来自制药、化妆品、食品三大板块的最新专业内容</p>
+        </div>
+        <div class="latest-articles-grid">
+          <div
+            v-for="article in latestArticles.slice(0, 6)"
+            :key="article.id"
+            class="latest-article-card"
+            @click="$router.push(`/${article.sector}/article/${article.slug}`)"
+          >
+            <div class="lac-meta">
+              <span class="lac-sector" :style="{ color: getSectorColor(article.sector) }">{{ getSectorName(article.sector) }}</span>
+              <span class="lac-cat" v-if="article.category_name">{{ article.category_name }}</span>
+            </div>
+            <h4>{{ article.title }}</h4>
+            <p>{{ article.summary }}</p>
+            <div class="lac-footer">
+              <span class="lac-date">{{ article.published_at ? new Date(article.published_at).toLocaleDateString('zh-CN') : '' }}</span>
+              <span v-if="article.access_level !== 'free'" class="lac-pro">会员</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Two Column - Image + Text (Pfizer style) -->
     <section class="pf-section pf-section-white">
       <div class="pf-container">
@@ -269,7 +299,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+
+const API = window.location.origin + '/api'
 
 const latestLetters = ref([
   { id: 1, company_name: '某制药有限公司', subject: 'CGMP 违规 - 数据完整性问题', issue_date: '03.15.2024', issuing_office: 'CDER' },
@@ -277,6 +309,39 @@ const latestLetters = ref([
   { id: 3, company_name: '某食品有限公司', subject: '标签标识不符合规定', issue_date: '02.10.2024', issuing_office: 'CFSAN' },
   { id: 4, company_name: '某医疗器械公司', subject: '质量体系不符合要求', issue_date: '01.22.2024', issuing_office: 'CDRH' },
 ])
+
+const latestArticles = ref([])
+
+const sectorColors = { pharma: '#0000C9', cosmetics: '#C45B9C', food: '#2D8C3C' }
+const sectorNames = { pharma: '制药', cosmetics: '化妆品', food: '食品' }
+function getSectorColor(s) { return sectorColors[s] || '#0000C9' }
+function getSectorName(s) { return sectorNames[s] || s }
+
+onMounted(async () => {
+  try {
+    const resp = await fetch(`${API}/content/home`)
+    if (resp.ok) {
+      const data = await resp.json()
+      latestArticles.value = data.latest_articles || []
+    }
+  } catch (e) { /* silent */ }
+  // Also fetch real FDA letters
+  try {
+    const resp = await fetch(`${API}/letters?page=1&page_size=4`)
+    if (resp.ok) {
+      const data = await resp.json()
+      if (data.items && data.items.length > 0) {
+        latestLetters.value = data.items.map(l => ({
+          id: l.id,
+          company_name: l.company_name,
+          subject: l.subject,
+          issue_date: l.issue_date || '',
+          issuing_office: l.issuing_office || 'FDA',
+        }))
+      }
+    }
+  } catch (e) { /* silent */ }
+})
 </script>
 
 <style scoped>
@@ -433,6 +498,73 @@ const latestLetters = ref([
   line-height: 1.7;
   margin: 0;
 }
+
+/* ═══════════════════════════════════════
+   Latest Articles Grid
+═══════════════════════════════════════ */
+.latest-articles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.latest-article-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.latest-article-card:hover {
+  border-color: #0000C9;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+}
+
+.lac-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.lac-sector { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.lac-cat { font-size: 11px; color: #999; background: #f5f5f5; padding: 2px 8px; border-radius: 3px; }
+
+.latest-article-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.latest-article-card p {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lac-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.lac-date { font-size: 12px; color: #999; }
+.lac-pro { font-size: 11px; font-weight: 600; color: #0000C9; background: rgba(0,0,201,0.08); padding: 2px 8px; border-radius: 3px; }
 
 /* ═══════════════════════════════════════
    Sector Entry Cards
@@ -824,6 +956,10 @@ const latestLetters = ref([
     gap: 20px;
   }
 
+  .latest-articles-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .pf-section { padding: 60px 0; }
 }
 
@@ -836,5 +972,6 @@ const latestLetters = ref([
   .pf-two-col-text h4 { font-size: 24px; }
   .pf-section-header h2 { font-size: 28px; }
   .pf-cta-content h2 { font-size: 28px; }
+  .latest-articles-grid { grid-template-columns: 1fr; }
 }
 </style>
