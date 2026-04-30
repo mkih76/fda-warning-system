@@ -16,6 +16,13 @@
         <router-link to="/regulations" class="nav-link">法规信息</router-link>
         <router-link to="/news" class="nav-link">行业资讯</router-link>
         <router-link to="/dashboard" class="nav-link">数据看板</router-link>
+        <router-link to="/favorites" class="nav-link nav-favorites">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          收藏
+          <span v-if="favoritesCount > 0" class="favorites-badge">{{ favoritesCount }}</span>
+        </router-link>
       </nav>
       
       <!-- Right Navigation (PC) -->
@@ -45,6 +52,12 @@
         <router-link to="/regulations" class="mobile-nav-link" @click="closeMobileMenu">法规信息</router-link>
         <router-link to="/news" class="mobile-nav-link" @click="closeMobileMenu">行业资讯</router-link>
         <router-link to="/dashboard" class="mobile-nav-link" @click="closeMobileMenu">数据看板</router-link>
+        <router-link to="/favorites" class="mobile-nav-link" @click="closeMobileMenu">
+          <span class="flex items-center gap-2">
+            收藏
+            <span v-if="favoritesCount > 0" class="favorites-badge">{{ favoritesCount }}</span>
+          </span>
+        </router-link>
       </nav>
       <div class="mobile-menu-footer">
         <button class="mobile-search-btn">
@@ -64,9 +77,11 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useFavorites } from '../composables/useFavorites.js'
 
 const route = useRoute()
 const mobileMenuOpen = ref(false)
+const { favoritesCount } = useFavorites()
 
 function toggleMobileMenu() {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -135,6 +150,29 @@ watch(() => route.path, () => {
 .nav-link:hover {
   color: #0093D0;
   background: #f0f7ff;
+}
+
+.nav-favorites {
+  position: relative;
+  gap: 6px;
+}
+
+.favorites-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* Header Right */

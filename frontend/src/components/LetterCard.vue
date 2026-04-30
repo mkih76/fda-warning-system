@@ -4,7 +4,16 @@
       <span class="status-badge" :class="letter.status === 'active' ? 'status-active' : 'status-closed'">
         {{ letter.status === 'active' ? '进行中' : '已关闭' }}
       </span>
-      <span class="fda-id">{{ letter.fda_id }}</span>
+      <button
+        class="favorite-btn"
+        :class="{ 'is-favorite': isFavorite(letter.id) }"
+        @click.stop="toggleFavorite(letter.id)"
+        :title="isFavorite(letter.id) ? '取消收藏' : '收藏'"
+      >
+        <svg viewBox="0 0 24 24" :fill="isFavorite(letter.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+      </button>
     </div>
 
     <div class="card-body">
@@ -26,6 +35,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useFavorites } from '../composables/useFavorites.js'
 
 const props = defineProps({
   letter: {
@@ -33,6 +43,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const { isFavorite, toggleFavorite } = useFavorites()
 
 const summaryText = computed(() => {
   const src = props.letter.analysis?.summary_zh || props.letter.subject || ''
@@ -65,6 +77,29 @@ const summaryText = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.favorite-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.favorite-btn:hover {
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.favorite-btn.is-favorite {
+  color: #ef4444;
 }
 
 .status-badge {

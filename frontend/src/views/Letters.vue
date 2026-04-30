@@ -6,9 +6,17 @@
         <h1 class="page-title">警告信列表</h1>
         <p class="page-subtitle">浏览 FDA 最新警告信，支持搜索和筛选</p>
       </div>
-      <div class="page-status">
-        <span class="status-dot"></span>
-        <span>共 {{ total }} 条记录</span>
+      <div class="page-actions">
+        <button @click="exportCSV" class="btn-export" :disabled="exporting">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          {{ exporting ? '导出中...' : '导出 CSV' }}
+        </button>
+        <div class="page-status">
+          <span class="status-dot"></span>
+          <span>共 {{ total }} 条记录</span>
+        </div>
       </div>
     </div>
 
@@ -108,6 +116,7 @@ import LetterCard from '../components/LetterCard.vue'
 const API = window.location.origin + '/api'
 const letters = ref([])
 const loading = ref(true)
+const exporting = ref(false)
 const page = ref(1)
 const total = ref(0)
 const perPage = 20
@@ -214,6 +223,33 @@ async function fetchViolationTypes() {
   }
 }
 
+async function exportCSV() {
+  exporting.value = true
+  try {
+    const params = new URLSearchParams()
+    if (searchQuery.value) params.set('search', searchQuery.value)
+    if (filterOffice.value) params.set('office', filterOffice.value)
+    if (filterStatus.value) params.set('status', filterStatus.value)
+
+    const resp = await fetch(`${API}/letters/export/csv?${params}`)
+    const blob = await resp.blob()
+
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `fda_letters_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+    alert('导出失败，请稍后重试')
+  } finally {
+    exporting.value = false
+  }
+}
+
 onMounted(() => {
   fetchOffices()
   fetchViolationTypes()
@@ -263,6 +299,37 @@ onMounted(() => {
   gap: 8px;
   font-size: 14px;
   color: var(--text-2);
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-export:hover:not(:disabled) {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.btn-export:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .status-dot {

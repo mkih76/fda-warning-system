@@ -4,21 +4,26 @@ FDA Warning Letter System - FastAPI Backend
 from fastapi import FastAPI, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, or_, func, text as sql_text
 from pydantic import BaseModel
-from typing import Optional
-from datetime import date
+from typing import Optional, List
+from datetime import date, datetime
 from pathlib import Path
+from functools import lru_cache
 import re
+import csv
+import io
+import json
 
 from .database import get_db
 from . import models
 
 app = FastAPI(
     title="FDA Warning Letter API",
-    version="1.0.0",
-    description="FDA 警告信智能监控系统 API",
+    version="2.0.0",
+    description="FDA 警告信智能监控系统 API - 增强版",
 )
 
 # CORS — 允许前端访问
@@ -29,6 +34,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 简单内存缓存（生产环境建议使用 Redis）
+cache = {}
+CACHE_TTL = 300  # 5分钟缓存
+
+def get_cached(key: str):
+    if key in cache:
+        data, timestamp = cache[key]
+        if (datetime.now() - timestamp).seconds < CACHE_TTL:
+            return data
+        del cache[key]
+    return None
+
+def set_cached(key: str, data):
+    cache[key] = (data, datetime.now())
 
 
 # ─── Pydantic Schemas ────────────────────────────────────────────
@@ -495,6 +515,135 @@ def get_article(article_id: str):
     
     from fastapi import HTTPException
     raise HTTPException(status_code=404, detail="Article not found")
+
+
+# ─── Export API ──────────────────────────────────────────────────
+
+@app.get("/api/letters/export/csv")
+def export_letters_csv(
+    search: Optional[str] = None,
+    office: Optional[str] = None,
+    country: Optional[str] = None,
+    year: Optional[int] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    """导出警告信为 CSV 格式"""
+    q = db.query(models.WarningLetter)
+
+    if search:
+        q = q.filter(
+            or_(
+                models.WarningLetter.company_name.ilike(f"%{search}%"),
+                models.WarningLetter.subject.ilike(f"%{search}%"),
+            )
+        )
+    if office:
+        q = q.filter(models.WarningLetter.issuing_office == office)
+    if country:
+        q = q.filter(models.WarningLetter.country == country)
+    if year:
+        q = q.filter(func.substr(models.WarningLetter.issue_date, 1, 4) == str(year))
+    if status:
+        q = q.filter(models.WarningLetter.status == status)
+
+    letters = q.order_by(desc(models.WarningLetter.issue_date)).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        'ID', 'FDA ID', '公司名称', '主题', '签发办公室',
+        '发布日期', '国家', '状态', 'URL'
+    ])
+
+    for letter in letters:
+        writer.writerow([
+            letter.id,
+            letter.fda_id,
+            letter.company_name,
+            letter.subject,
+            letter.issuing_office or '',
+            str(letter.issue_date) if letter.issue_date else '',
+            letter.country or '',
+            letter.status or '',
+            letter.url or '',
+        ])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=fda_letters_{datetime.now().strftime('%Y%m%d')}.csv"}
+    )
+
+
+# ─── Search Suggestions API ──────────────────────────────────────
+
+@app.get("/api/search/suggestions")
+def get_search_suggestions(
+    q: str = Query(..., min_length=2),
+    db: Session = Depends(get_db),
+):
+    """获取搜索建议（自动完成）"""
+    cache_key = f"suggestions:{q}"
+    cached = get_cached(cache_key)
+    if cached:
+        return cached
+
+    # 搜索公司名称
+    companies = db.query(models.WarningLetter.company_name).filter(
+        models.WarningLetter.company_name.ilike(f"%{q}%")
+    ).distinct().limit(5).all()
+
+    # 搜索主题
+    subjects = db.query(models.WarningLetter.subject).filter(
+        models.WarningLetter.subject.ilike(f"%{q}%")
+    ).distinct().limit(5).all()
+
+    result = {
+        "companies": [c[0] for c in companies],
+        "subjects": [s[0] for s in subjects],
+    }
+
+    set_cached(cache_key, result)
+    return result
+
+
+# ─── Optimized Stats with Cache ─────────────────────────────────
+
+@app.get("/api/stats/optimized")
+def get_optimized_stats(db: Session = Depends(get_db)):
+    """带缓存的统计信息"""
+    cache_key = "stats:optimized"
+    cached = get_cached(cache_key)
+    if cached:
+        return cached
+
+    # 复用原有逻辑
+    stats = get_stats(db)
+
+    # 添加额外统计
+    # 最近30天新增
+    from datetime import timedelta
+    thirty_days_ago = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    recent_count = db.query(func.count(models.WarningLetter.id)).filter(
+        models.WarningLetter.issue_date >= thirty_days_ago
+    ).scalar() or 0
+
+    # 高风险企业数量
+    high_risk_count = db.query(func.count(models.WarningLetter.id)).filter(
+        models.WarningLetter.country.in_(['China', 'India'])
+    ).scalar() or 0
+
+    result = {
+        **stats.dict(),
+        "recent_30_days": recent_count,
+        "high_risk_countries": high_risk_count,
+        "cache_time": datetime.now().isoformat(),
+    }
+
+    set_cached(cache_key, result)
+    return result
 
 
 # ─── Serve Frontend Static Files ──────────────────────────────────
