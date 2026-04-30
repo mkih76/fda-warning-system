@@ -346,6 +346,26 @@ function formatNumber(num) {
   return num.toLocaleString()
 }
 
+// 注意：在script setup中，需要通过useRouter获取router
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+function navigateToArticle(article) {
+  // 如果有真实的文章数据（RSS部署后），跳转到文章详情
+  if (article.id && article.slug) {
+    router.push(`/${article.sector}/article/${article.slug}`)
+  } else {
+    // 否则跳转到对应的板块页面
+    const sectorRoutes = {
+      pharma: '/pharma',
+      cosmetics: '/cosmetics',
+      food: '/food',
+      tech: '/articles'
+    }
+    router.push(sectorRoutes[article.sector] || '/')
+  }
+}
+
 // ==================== API调用 ====================
 
 async function fetchHeadlines() {
@@ -1016,5 +1036,18 @@ onMounted(() => {
   background: #fef2f2;
   color: #dc2626;
   border: 1px solid #fecaca;
+}
+
+.static-data-notice {
+  padding: 12px;
+  background: #f0f7ff;
+  border-radius: 6px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.static-data-notice small {
+  color: #666;
+  font-size: 0.78rem;
 }
 </style>
