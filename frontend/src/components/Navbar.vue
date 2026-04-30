@@ -22,42 +22,33 @@
           <router-link to="/" class="pf-logo">
             <svg viewBox="0 0 200 50" class="pf-logo-svg">
               <rect x="0" y="8" width="34" height="34" rx="4" fill="#0000C9"/>
-              <text x="42" y="24" font-size="14" font-weight="700" fill="#0000C9" font-family="Noto Sans, Arial, sans-serif">FDA</text>
-              <text x="42" y="40" font-size="10" font-weight="400" fill="#333" font-family="Noto Sans, Arial, sans-serif">警告信智能平台</text>
+              <text x="42" y="24" font-size="14" font-weight="700" fill="#0000C9" font-family="Noto Sans, Arial, sans-serif">PharmaCos</text>
+              <text x="42" y="40" font-size="10" font-weight="400" fill="#333" font-family="Noto Sans, Arial, sans-serif">行业知识平台</text>
             </svg>
           </router-link>
 
           <!-- Desktop Navigation -->
           <nav class="pf-nav">
             <router-link to="/" class="pf-nav-link" :class="{ active: $route.path === '/' }">首页</router-link>
-            <div class="pf-nav-dropdown" @mouseenter="activeDropdown = 'science'" @mouseleave="activeDropdown = null">
-              <router-link to="/letters" class="pf-nav-link" :class="{ active: $route.path.startsWith('/letters') }">
-                警告信
+            <router-link to="/pharma" class="pf-nav-link" :class="{ active: $route.path.startsWith('/pharma') }">制药</router-link>
+            <router-link to="/cosmetics" class="pf-nav-link" :class="{ active: $route.path.startsWith('/cosmetics') }">化妆品</router-link>
+            <router-link to="/food" class="pf-nav-link" :class="{ active: $route.path.startsWith('/food') }">食品</router-link>
+            <div class="pf-nav-dropdown" @mouseenter="activeDropdown = 'general'" @mouseleave="activeDropdown = null">
+              <router-link to="/general" class="pf-nav-link" :class="{ active: $route.path.startsWith('/general') || $route.path.startsWith('/letters') || $route.path.startsWith('/dashboard') }">
+                综合
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </router-link>
-              <div class="pf-dropdown" v-show="activeDropdown === 'science'">
-                <router-link to="/letters" class="pf-dropdown-item">全部警告信</router-link>
-                <router-link to="/letters" class="pf-dropdown-item">高风险企业</router-link>
-                <router-link to="/letters" class="pf-dropdown-item">最新发布</router-link>
-                <router-link to="/letters" class="pf-dropdown-item">按签发办公室</router-link>
-              </div>
-            </div>
-            <router-link to="/dashboard" class="pf-nav-link" :class="{ active: $route.path === '/dashboard' }">数据看板</router-link>
-            <div class="pf-nav-dropdown" @mouseenter="activeDropdown = 'news'" @mouseleave="activeDropdown = null">
-              <a href="#" class="pf-nav-link" :class="{ active: $route.path.startsWith('/articles') || $route.path.startsWith('/news') }" @click.prevent>
-                新闻与洞察
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-              </a>
-              <div class="pf-dropdown" v-show="activeDropdown === 'news'">
+              <div class="pf-dropdown" v-show="activeDropdown === 'general'">
+                <router-link to="/general" class="pf-dropdown-item">综合知识库</router-link>
+                <router-link to="/letters" class="pf-dropdown-item">FDA 警告信</router-link>
+                <router-link to="/dashboard" class="pf-dropdown-item">数据看板</router-link>
                 <router-link to="/articles" class="pf-dropdown-item">深度内容</router-link>
                 <router-link to="/news" class="pf-dropdown-item">行业资讯</router-link>
                 <router-link to="/regulations" class="pf-dropdown-item">法规信息</router-link>
               </div>
             </div>
-            <router-link to="/favorites" class="pf-nav-link" :class="{ active: $route.path === '/favorites' }">
-              收藏
-              <span v-if="favoritesCount > 0" class="pf-nav-badge">{{ favoritesCount }}</span>
-            </router-link>
+            <router-link to="/tools" class="pf-nav-link" :class="{ active: $route.path.startsWith('/tools') }">工具</router-link>
+            <router-link to="/about" class="pf-nav-link" :class="{ active: $route.path.startsWith('/about') }">关于</router-link>
           </nav>
 
           <!-- Right actions -->
@@ -77,11 +68,14 @@
     <div class="pf-mobile-menu" :class="{ open: mobileOpen }">
       <div class="pf-mobile-inner">
         <router-link to="/" class="pf-mobile-link" @click="closeMobile">首页</router-link>
-        <router-link to="/letters" class="pf-mobile-link" @click="closeMobile">警告信</router-link>
-        <router-link to="/dashboard" class="pf-mobile-link" @click="closeMobile">数据看板</router-link>
-        <router-link to="/articles" class="pf-mobile-link" @click="closeMobile">深度内容</router-link>
-        <router-link to="/news" class="pf-mobile-link" @click="closeMobile">行业资讯</router-link>
-        <router-link to="/regulations" class="pf-mobile-link" @click="closeMobile">法规信息</router-link>
+        <router-link to="/pharma" class="pf-mobile-link" @click="closeMobile">制药</router-link>
+        <router-link to="/cosmetics" class="pf-mobile-link" @click="closeMobile">化妆品</router-link>
+        <router-link to="/food" class="pf-mobile-link" @click="closeMobile">食品</router-link>
+        <router-link to="/general" class="pf-mobile-link" @click="closeMobile">综合</router-link>
+        <router-link to="/tools" class="pf-mobile-link" @click="closeMobile">工具</router-link>
+        <router-link to="/letters" class="pf-mobile-link" @click="closeMobile" style="padding-left:32px;font-size:15px;color:#666">FDA 警告信</router-link>
+        <router-link to="/dashboard" class="pf-mobile-link" @click="closeMobile" style="padding-left:32px;font-size:15px;color:#666">数据看板</router-link>
+        <router-link to="/about" class="pf-mobile-link" @click="closeMobile">关于</router-link>
         <router-link to="/favorites" class="pf-mobile-link" @click="closeMobile">
           收藏
           <span v-if="favoritesCount > 0" class="pf-nav-badge">{{ favoritesCount }}</span>

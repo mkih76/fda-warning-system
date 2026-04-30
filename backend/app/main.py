@@ -19,12 +19,21 @@ import json
 
 from .database import get_db
 from . import models
+from . import models_new  # noqa: F401 — import to register new table models
 
 app = FastAPI(
     title="FDA Warning Letter API",
     version="2.0.0",
     description="FDA 警告信智能监控系统 API - 增强版",
 )
+
+
+# ─── Startup: create new tables if they don't exist ────────────
+@app.on_event("startup")
+def startup_create_tables():
+    """Create any new tables (users, categories, articles, etc.) without touching existing ones."""
+    from .models import Base, engine
+    Base.metadata.create_all(bind=engine)
 
 # CORS — 允许前端访问
 app.add_middleware(

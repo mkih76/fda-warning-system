@@ -7,11 +7,48 @@
       </div>
       <div class="pf-container">
         <div class="pf-hero-content">
-          <h1>COMPLIANCE<br/>INTELLIGENCE<br/>WINS</h1>
-          <p>FDA 警告信智能监控平台，AI 驱动的合规分析引擎，实时追踪全球 FDA 警告信动态，助力中国制药企业精准防控合规风险。</p>
+          <h1>REGULATORY<br/>INTELLIGENCE<br/>PLATFORM</h1>
+          <p>制药·化妆品·食品行业知识与合规平台，覆盖政策法规、GMP 实务、药典解读等专业知识，AI 驱动，助力中国健康行业企业合规发展。</p>
           <div class="pf-hero-actions">
             <router-link to="/letters" class="pf-btn pf-btn-white">开始探索</router-link>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three Sector Entry Cards -->
+    <section class="pf-section pf-section-white">
+      <div class="pf-container">
+        <div class="pf-section-header">
+          <h4 class="pf-eyebrow">行业板块</h4>
+          <h2>三大行业知识体系</h2>
+          <p>每个板块自成体系，涵盖行业动态、政策法规、知识专栏、案例研究</p>
+        </div>
+        <div class="sector-cards-grid">
+          <router-link to="/pharma" class="sector-entry-card" style="--sector-color: #0000C9">
+            <div class="sector-entry-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+            </div>
+            <h3>制药 Pharma</h3>
+            <p>GMP 实务、药典解读、注册申报、质量控制、工艺验证</p>
+            <span class="sector-entry-link">了解更多 →</span>
+          </router-link>
+          <router-link to="/cosmetics" class="sector-entry-card" style="--sector-color: #C45B9C">
+            <div class="sector-entry-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+            </div>
+            <h3>化妆品 Cosmetics</h3>
+            <p>配方安全、功效评价、原料合规、标签宣称、市场趋势</p>
+            <span class="sector-entry-link">了解更多 →</span>
+          </router-link>
+          <router-link to="/food" class="sector-entry-card" style="--sector-color: #2D8C3C">
+            <div class="sector-entry-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.17c0 .62-.504 1.124-1.125 1.124H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265z"/></svg>
+            </div>
+            <h3>食品 Food</h3>
+            <p>食品安全管理体系、添加剂合规、标签标识、进出口合规</p>
+            <span class="sector-entry-link">了解更多 →</span>
+          </router-link>
         </div>
       </div>
     </section>
@@ -398,6 +435,80 @@ const latestLetters = ref([
 }
 
 /* ═══════════════════════════════════════
+   Sector Entry Cards
+═══════════════════════════════════════ */
+.sector-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.sector-entry-card {
+  padding: 40px 32px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.sector-entry-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--sector-color);
+  transform: scaleX(0);
+  transition: transform 0.25s;
+  transform-origin: left;
+}
+
+.sector-entry-card:hover {
+  border-color: var(--sector-color);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  transform: translateY(-6px);
+}
+
+.sector-entry-card:hover::before { transform: scaleX(1); }
+
+.sector-entry-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--sector-color) 8%, transparent);
+  color: var(--sector-color);
+  margin-bottom: 20px;
+}
+
+.sector-entry-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 10px;
+}
+
+.sector-entry-card p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.7;
+  margin: 0 0 20px;
+}
+
+.sector-entry-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sector-color);
+  transition: gap 0.2s;
+}
+
+/* ═══════════════════════════════════════
    Two Column Layout (Pfizer core pattern)
 ═══════════════════════════════════════ */
 .pf-two-col {
@@ -706,6 +817,11 @@ const latestLetters = ref([
   .pf-steps-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .sector-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .pf-section { padding: 60px 0; }

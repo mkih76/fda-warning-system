@@ -18,21 +18,28 @@
           <!-- Links -->
           <div class="pf-footer-links">
             <div class="pf-footer-col">
-              <h4>平台功能</h4>
-              <router-link to="/letters">警告信列表</router-link>
-              <router-link to="/dashboard">数据看板</router-link>
-              <router-link to="/favorites">我的收藏</router-link>
+              <h4>行业板块</h4>
+              <router-link to="/pharma">制药</router-link>
+              <router-link to="/cosmetics">化妆品</router-link>
+              <router-link to="/food">食品</router-link>
             </div>
             <div class="pf-footer-col">
-              <h4>内容资源</h4>
+              <h4>综合资源</h4>
+              <router-link to="/general">综合知识库</router-link>
+              <router-link to="/letters">FDA 警告信</router-link>
+              <router-link to="/dashboard">数据看板</router-link>
+              <router-link to="/tools">实用工具</router-link>
+            </div>
+            <div class="pf-footer-col">
+              <h4>内容</h4>
               <router-link to="/articles">深度内容</router-link>
               <router-link to="/news">行业资讯</router-link>
               <router-link to="/regulations">法规信息</router-link>
             </div>
             <div class="pf-footer-col">
-              <h4>关于我们</h4>
+              <h4>关于</h4>
+              <router-link to="/about">平台介绍</router-link>
               <a href="https://github.com/mkih76/fda-warning-system" target="_blank">GitHub</a>
-              <a href="https://www.fda.gov" target="_blank">FDA 官方网站</a>
               <a href="mailto:contact@example.com">联系我们</a>
             </div>
           </div>
@@ -68,8 +75,8 @@
 
 .pf-footer-grid {
   display: grid;
-  grid-template-columns: 1.2fr 2fr;
-  gap: 80px;
+  grid-template-columns: 1.2fr 2.5fr;
+  gap: 60px;
 }
 
 .pf-footer-brand {
@@ -93,8 +100,8 @@
 
 .pf-footer-links {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
 }
 
 .pf-footer-col h4 {
