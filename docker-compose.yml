@@ -1,0 +1,18 @@
+services:
+  fda-backend:
+    build: ./backend
+    image: fda-warning-backend:latest
+    container_name: fda-warning-backend
+    ports:
+      - "8790:8790"
+    volumes:
+      - /root/data:/root/data
+      - /root/fda-warning-system/frontend/dist:/root/fda-warning-system/frontend/dist
+    environment:
+      - DATABASE_URL=sqlite:////root/data/fda_warning.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8790/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

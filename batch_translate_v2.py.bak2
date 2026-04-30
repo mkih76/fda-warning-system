@@ -1,0 +1,396 @@
+#!/usr/bin/env python3
+"""
+FDA警告信批量翻译 v2 — Agent规则版
+===================================
+遵循 AGENTS.md 规范:
+- 进程锁：防止重复启动
+- 模型优先级：DeepSeek-v4-pro > v4-flash > LLaMA
+- 质量校验：自动分级 A-F
+- 错误处理：优雅停止 + 自动重试
+- 日志规范：INFO/WARNING/ERROR 分级
+"""
+import sqlite3
+import urllib.request
+import json
+import time
+import re
+import sys
+import os
+import signal
+import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+from datetime import datetime
+
+# 导入预处理和校验
+sys.path.insert(0, '/root/fda-warning-system/scripts')
+from clean_fulltext import clean_fulltext
+from validate_translation import validate_translation, quality_grade
+
+# ============================================
+# 日志配置
+# ============================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/root/fda-warning-system/translation.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('batch_translate')
+
+# ============================================
+# Agent规则：进程锁
+# ============================================
+PID_FILE = '/root/fda-warning-system/.translate.pid'
+LOCK_ACQUIRED = False
+
+def acquire_lock():
+    """获取进程锁，防止重复启动"""
+    global LOCK_ACQUIRED
+    
+    # 检查是否有其他进程在运行
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, 'r') as f:
+            old_pid = f.read().strip()
+        
+        # 检查进程是否存活
+        try:
+            os.kill(int(old_pid), 0)
+            logger.error(f"另一个翻译进程正在运行 (PID: {old_pid})，退出")
+            return False
+        except OSError:
+            # 进程不存在，清理旧PID文件
+            logger.warning(f"清理旧PID文件: {old_pid}")
+            os.remove(PID_FILE)
+    
+    # 写入当前PID
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+    
+    LOCK_ACQUIRED = True
+    logger.info(f"进程锁已获取 (PID: {os.getpid()})")
+    return True
+
+def release_lock():
+    """释放进程锁"""
+    global LOCK_ACQUIRED
+    if LOCK_ACQUIRED and os.path.exists(PID_FILE):
+        os.remove(PID_FILE)
+        LOCK_ACQUIRED = False
+        logger.info("进程锁已释放")
+
+# ============================================
+# Agent规则：优雅停止
+# ============================================
+SHOULD_STOP = False
+
+def signal_handler(signum, frame):
+    """处理停止信号"""
+    global SHOULD_STOP
+    logger.info(f"收到信号 {signum}，准备优雅停止...")
+    SHOULD_STOP = True
+
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
+# ============================================
+# Agent规则：配置
+# ============================================
+DB = '/root/data/fda_warning.db'
+BASE_URL = 'https://integrate.api.nvidia.com/v1'
+
+# Agent规则：API Key轮询
+API_KEYS = [
+    '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',
+    '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',
+]
+
+# Agent规则：模型优先级（按翻译质量排序）
+MODELS = [
+    'deepseek-ai/deepseek-v4-pro',           # 最高优先级
+    'deepseek-ai/deepseek-v4-flash',         # 次高优先级
+    'meta/llama-3.3-70b-instruct',           # 第三优先级
+    'nvidia/llama-3.3-nemotron-super-49b-v1', # 稳定可用
+    'qwen/qwen3.5-122b-a10b',                # 稳定可用
+    'nvidia/llama-3.1-nemotron-70b-instruct', # 备用
+    'mistralai/mistral-large-3-675b-instruct-2512', # 备用
+]
+
+# Agent规则：状态追踪
+stats = {'success': 0, 'fail': 0, 'skip': 0, 'low_quality': 0}
+stats_lock = Lock()
+model_idx = 0
+model_lock = Lock()
+key_idx = 0
+key_lock = Lock()
+
+# ============================================
+# Agent规则：翻译Prompt
+# ============================================
+TRANSLATE_PROMPT = """你是一名专业的FDA法规文件翻译员。请严格按以下要求将FDA警告信翻译为中文：
+
+【核心原则】
+1. 逐句翻译：每一句英文原文都必须翻译为对应中文，不得遗漏
+2. 禁止添加：不得添加原文没有的内容，包括：总结、概括、评价、注释、补充说明
+3. 禁止省略：不得省略任何原文内容，包括法律条文引用、地址、日期、编号
+4. 保留格式：保留原文的段落结构、换行位置、缩进层次
+5. 保留专有名词：FDA、CGMP、21 CFR、FD&C Act等法规术语保留英文原文
+6. 保留原文英文：人名、公司名、街道地址保留英文原文
+7. 仅输出翻译：只输出翻译结果，不输出任何额外说明、标签或格式标记
+
+【禁止出现的词汇】
+- "总之"、"综上所述"、"概括来说"、"简而言之"
+- "值得注意的是"、"需要指出"、"关键要点"、"主要发现"
+- 任何原文中没有的总结性或评论性语句
+
+请翻译以下FDA警告信正文：
+
+"""
+
+# ============================================
+# Agent规则：模型和Key轮询
+# ============================================
+def get_model():
+    """轮询获取模型（按优先级）"""
+    global model_idx
+    with model_lock:
+        m = MODELS[model_idx % len(MODELS)]
+        model_idx += 1
+        return m
+
+def get_key():
+    """轮询获取API Key"""
+    global key_idx
+    with key_lock:
+        k = API_KEYS[key_idx % len(API_KEYS)]
+        key_idx += 1
+        return k
+
+# ============================================
+# Agent规则：翻译函数
+# ============================================
+def translate_one(text, max_retries=4):
+    """
+    翻译单封信件
+    
+    流程：
+    1. 截取前10000字（NVIDIA NIM上下文限制）
+    2. 拼接翻译Prompt
+    3. 调用API（带重试）
+    4. 返回翻译结果
+    
+    返回：(translation, model_name) 或 (None, None)
+    """
+    # Agent规则：截断处理
+    if len(text) > 10000:
+        text = text[:10000] + '\n\n[...文本过长已截断...]'
+    
+    prompt = TRANSLATE_PROMPT + text
+    
+    for attempt in range(max_retries):
+        if SHOULD_STOP:
+            logger.info("收到停止信号，中断翻译")
+            return None, None
+        
+        model = get_model()
+        api_key = get_key()
+        
+        try:
+            payload = json.dumps({
+                'model': model,
+                'messages': [{'role': 'user', 'content': prompt}],
+                'max_tokens': 4096,
+                'temperature': 0.1,
+                'top_p': 0.9,
+            }).encode()
+            
+            req = urllib.request.Request(
+                f'{BASE_URL}/chat/completions',
+                data=payload,
+                headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {api_key}'
+                }
+            )
+            
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                result = json.loads(resp.read())
+                
+                if 'choices' in result and len(result['choices']) > 0:
+                    content = result['choices'][0].get('message', {}).get('content', '')
+                    if content and len(content) > 100:
+                        return content, model
+                    else:
+                        logger.warning(f"翻译结果过短: {len(content) if content else 0}字")
+                        continue
+                else:
+                    logger.warning(f"API返回异常: {result}")
+                    continue
+                    
+        except urllib.error.HTTPError as e:
+            if e.code == 429:  # Rate limit
+                logger.warning(f"API限流 (429): model={model}, 等待5秒")
+                time.sleep(5)
+                continue
+            elif e.code == 401:  # Auth error
+                logger.error(f"API Key无效: {api_key[:20]}...")
+                continue
+            elif e.code == 404:  # Model not found
+                logger.warning(f"模型不可用: {model}")
+                continue
+            else:
+                logger.error(f"HTTP错误 {e.code}: {e.reason}")
+                continue
+                
+        except urllib.error.URLError as e:
+            logger.error(f"网络错误: {e.reason}")
+            time.sleep(2)
+            continue
+            
+        except Exception as e:
+            logger.error(f"未知错误: {e}")
+            continue
+    
+    return None, None
+
+# ============================================
+# Agent规则：处理单封信件
+# ============================================
+def process_one(row):
+    """
+    处理单封信：预处理 + 翻译 + 质量校验
+    
+    流程：
+    1. 原文预处理（清洗网页残留）
+    2. 翻译（带重试）
+    3. 质量校验（评分+分级）
+    4. 保存到数据库
+    """
+    if SHOULD_STOP:
+        return None, 'stopped', 0, []
+    
+    lid, fda_id, company, en_text = row
+    
+    # 1. 原文预处理
+    try:
+        clean_text = clean_fulltext(en_text)
+    except Exception as e:
+        logger.error(f"预处理失败 id={lid}: {e}")
+        return lid, 'error', 0, [f'预处理失败: {e}']
+    
+    if len(clean_text) < 100:
+        logger.info(f"跳过 id={lid} {fda_id} — 清洗后原文过短({len(clean_text)}字)")
+        return lid, 'skip', 0, ['原文过短']
+    
+    # 2. 翻译
+    result, model = translate_one(clean_text)
+    if not result:
+        logger.warning(f"翻译失败 id={lid} {fda_id}")
+        return lid, 'fail', 0, ['翻译失败']
+    
+    # 3. 质量校验
+    try:
+        score, issues = validate_translation(result, clean_text)
+        grade = quality_grade(score)
+    except Exception as e:
+        logger.error(f"质量校验失败 id={lid}: {e}")
+        score, issues, grade = 50, [f'校验异常: {e}'], 'D'
+    
+    # 4. 保存到数据库
+    try:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute(
+            'UPDATE ai_analysis SET translation_zh = ?, model_used = ? WHERE warning_letter_id = ?',
+            (result, model, lid)
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"数据库写入失败 id={lid}: {e}")
+        return lid, 'error', score, [f'写入失败: {e}']
+    
+    # 5. 更新统计
+    with stats_lock:
+        if score >= 60:
+            stats['success'] += 1
+            logger.info(f"[OK] id={lid} {fda_id} ({len(result)}字, 评分{score}{grade}, {model.split('/')[-1]})")
+        else:
+            stats['low_quality'] += 1
+            logger.warning(f"[LOW] id={lid} {fda_id} 评分{score}({grade}) — {issues[:2]}")
+    
+    return lid, 'success', score, issues
+
+# ============================================
+# Agent规则：主函数
+# ============================================
+def main():
+    """主函数"""
+    # 1. 获取进程锁
+    if not acquire_lock():
+        sys.exit(1)
+    
+    try:
+        # 2. 获取需要翻译的信件
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute('''
+            SELECT w.id, w.fda_id, w.company_name, w.full_text 
+            FROM warning_letters w
+            JOIN ai_analysis a ON a.warning_letter_id = w.id
+            WHERE w.full_text IS NOT NULL AND w.full_text != '' AND (a.translation_zh IS NULL OR a.translation_zh = '')
+            ORDER BY w.id
+        ''')
+        rows = c.fetchall()
+        conn.close()
+        
+        total = len(rows)
+        logger.info(f'=== FDA警告信批量翻译 v2 启动 ===')
+        logger.info(f'共 {total} 封待翻译')
+        logger.info(f'模型池: {len(MODELS)} 个')
+        logger.info(f'API Key: {len(API_KEYS)} 个')
+        logger.info(f'PID: {os.getpid()}')
+        
+        start_time = time.time()
+        
+        # 3. 并发翻译（5线程）
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = {executor.submit(process_one, row): row for row in rows}
+            
+            done = 0
+            for future in as_completed(futures):
+                if SHOULD_STOP:
+                    logger.info("收到停止信号，停止提交新任务")
+                    break
+                
+                done += 1
+                try:
+                    lid, status, score, issues = future.result()
+                except Exception as e:
+                    logger.error(f"任务异常: {e}")
+                
+                # 每20封打印进度
+                if done % 20 == 0:
+                    elapsed = time.time() - start_time
+                    rate = done / (elapsed / 60) if elapsed > 0 else 0
+                    logger.info(f'--- 进度: {done}/{total} ({done*100/total:.1f}%) | '
+                              f'成功{stats["success"]} 失败{stats["fail"]} 低质量{stats["low_quality"]} | '
+                              f'速度{rate:.1f}封/分钟 ---')
+        
+        # 4. 打印最终统计
+        elapsed = time.time() - start_time
+        logger.info(f'=== 完成 ===')
+        logger.info(f'成功: {stats["success"]}')
+        logger.info(f'失败: {stats["fail"]}')
+        logger.info(f'低质量: {stats["low_quality"]}')
+        logger.info(f'跳过: {stats["skip"]}')
+        logger.info(f'耗时: {elapsed/60:.1f}分钟')
+        
+    finally:
+        # 5. 释放进程锁
+        release_lock()
+
+if __name__ == '__main__':
+    main()

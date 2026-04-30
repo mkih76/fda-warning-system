@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-04-30T03:12:09.750679",
+  "total_high_risk_companies": 11,
+  "companies": [
+    {
+      "company_name": "Go Vapor LLC",
+      "warning_count": 3
+    },
+    {
+      "company_name": "Central Admixture Pharmacy Services, Inc.",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Ecig Charleston LLC",
+      "warning_count": 2
+    },
+    {
+      "company_name": "HotHead Vapor",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Kure CBD & Vape",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Liquid Nics LLC",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Medline Industries, LP",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Novo Nordisk Inc.",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Ocean Group Inc.",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Vapor Rage LLC",
+      "warning_count": 2
+    },
+    {
+      "company_name": "Wise Guys Vapes",
+      "warning_count": 2
+    }
+  ]
+}
