@@ -2,27 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 导入设计系统 */
+@import './styles/base.css';
+@import './styles/animations.css';
+@import './styles/components.css';
+
+/* 保持向后兼容的变量映射 */
 :root {
-  /* Pfizer风格 - 专业医疗白蓝配色 */
   --primary: #FFFFFF;
   --primary-rgb: 255, 255, 255;
-  --accent: #0095FF;
-  --accent-rgb: 0, 149, 255;
-  --accent-dark: #0070BF;
-  --accent-darker: #000485;
-  --surface: #F8F9FA;
-  --surface-2: #FFFFFF;
-  --surface-3: #F0F2F5;
-  --border: #E5E7EB;
-  --border-light: rgba(0,0,0,0.08);
-  --text: #1A1A2E;
-  --text-2: #4A5568;
-  --text-3: #9CA3AF;
-  --danger: #DC2626;
-  --warning: #F59E0B;
-  --success: #10B981;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
-  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.08);
+  --accent: var(--color-primary-600);
+  --accent-rgb: 37, 99, 235;
+  --accent-dark: var(--color-primary-700);
+  --accent-darker: var(--color-primary-900);
+  --surface: var(--bg-secondary);
+  --surface-2: var(--bg-primary);
+  --surface-3: var(--bg-tertiary);
+  --border: var(--border-default);
+  --border-light: rgba(0, 0, 0, 0.08);
+  --text: var(--text-primary);
+  --text-2: var(--text-secondary);
+  --text-3: var(--text-tertiary);
+  --danger: var(--color-danger-600);
+  --warning: var(--color-warning-500);
+  --success: var(--color-success-600);
+  --card-shadow: var(--shadow-card);
+  --card-shadow-hover: var(--shadow-card-hover);
 }
 
 * { box-sizing: border-box; }
