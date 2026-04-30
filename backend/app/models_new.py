@@ -73,6 +73,14 @@ class Article(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # RSS相关字段
+    source_type = Column(String(20), default='manual')  # manual/rss/ai_generated
+    source_name = Column(String(100))                    # 来源名称（如"FDA新闻"）
+    source_url = Column(String(500))                     # RSS源URL
+    original_url = Column(String(500))                   # 原文链接
+    language = Column(String(10), default='zh')          # 语言代码
+    content_hash = Column(String(32))                    # 内容hash（用于去重）
+
     # Relationships
     category = relationship('Category', back_populates='articles')
     author = relationship('User')

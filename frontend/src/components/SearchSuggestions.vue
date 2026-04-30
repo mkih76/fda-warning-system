@@ -56,7 +56,7 @@ const props = defineProps({
 
 const emit = defineEmits(['select'])
 
-const API = window.location.origin + '/api'
+const API = import.meta.env.VITE_API_URL || (window.location.origin + '/api')
 const suggestions = ref({ companies: [], subjects: [] })
 let debounceTimer = null
 

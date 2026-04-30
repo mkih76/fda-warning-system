@@ -9,11 +9,6 @@ const router = createRouter({
       component: () => import('../views/HomeNew.vue'),
     },
     {
-      path: '/portal',
-      name: 'portal',
-      component: () => import('../views/PortalHome.vue'),
-    },
-    {
       path: '/letters',
       name: 'letters',
       component: () => import('../views/LettersNew.vue'),

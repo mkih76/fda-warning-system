@@ -70,55 +70,55 @@
 }
 
 .pf-footer-main {
-  padding: 64px 0 48px;
+  padding: 36px 0 24px;
 }
 
 .pf-footer-grid {
   display: grid;
   grid-template-columns: 1.2fr 2.5fr;
-  gap: 60px;
+  gap: 40px;
 }
 
 .pf-footer-brand {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .pf-footer-logo-svg {
-  height: 40px;
+  height: 36px;
   width: auto;
 }
 
 .pf-footer-desc {
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.6;
   color: rgba(255,255,255,0.6);
   margin: 0;
-  max-width: 320px;
+  max-width: 280px;
 }
 
 .pf-footer-links {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+  gap: 24px;
 }
 
 .pf-footer-col h4 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #fff;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .pf-footer-col a {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255,255,255,0.6);
   text-decoration: none;
-  padding: 6px 0;
+  padding: 5px 0;
   transition: color 0.2s;
 }
 

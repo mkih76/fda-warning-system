@@ -30,8 +30,7 @@
           <!-- Desktop Navigation -->
           <nav class="pf-nav">
             <router-link to="/" class="pf-nav-link" :class="{ active: $route.path === '/' }">首页</router-link>
-            <router-link to="/portal" class="pf-nav-link portal-link" :class="{ active: $route.path === '/portal' }">资讯门户</router-link>
-            <router-link to="/pharma" class="pf-nav-link" :class="{ active: $route.path.startsWith('/pharma') }">制药</router-link>
+                        <router-link to="/pharma" class="pf-nav-link" :class="{ active: $route.path.startsWith('/pharma') }">制药</router-link>
             <router-link to="/cosmetics" class="pf-nav-link" :class="{ active: $route.path.startsWith('/cosmetics') }">化妆品</router-link>
             <router-link to="/food" class="pf-nav-link" :class="{ active: $route.path.startsWith('/food') }">食品</router-link>
             <div class="pf-nav-dropdown" @mouseenter="activeDropdown = 'general'" @mouseleave="activeDropdown = null">
@@ -84,8 +83,7 @@
     <div class="pf-mobile-menu" :class="{ open: mobileOpen }">
       <div class="pf-mobile-inner">
         <router-link to="/" class="pf-mobile-link" @click="closeMobile">首页</router-link>
-        <router-link to="/portal" class="pf-mobile-link portal-mobile-link" @click="closeMobile">资讯门户</router-link>
-        <router-link to="/pharma" class="pf-mobile-link" @click="closeMobile">制药</router-link>
+                <router-link to="/pharma" class="pf-mobile-link" @click="closeMobile">制药</router-link>
         <router-link to="/cosmetics" class="pf-mobile-link" @click="closeMobile">化妆品</router-link>
         <router-link to="/food" class="pf-mobile-link" @click="closeMobile">食品</router-link>
         <router-link to="/general" class="pf-mobile-link" @click="closeMobile">综合</router-link>
@@ -250,26 +248,6 @@ a.pf-utility-link:hover { color: #0000C9; }
   transform: scaleX(1);
 }
 
-/* 资讯门户链接特殊样式 */
-.portal-link {
-  background: linear-gradient(135deg, #f8fafc 0%, #eef5f9 100%);
-  border-radius: 20px;
-  margin: 0 4px;
-  padding: 8px 16px !important;
-  font-weight: 600 !important;
-  color: #0b3d5f !important;
-  border: 1px solid #c5d9e8;
-}
-
-.portal-link:hover {
-  background: #0b3d5f !important;
-  color: #fff !important;
-  border-color: #0b3d5f;
-}
-
-.portal-link::after {
-  display: none !important;
-}
 
 .pf-nav-badge {
   display: inline-flex;
@@ -477,16 +455,6 @@ a.pf-utility-link:hover { color: #0000C9; }
 
 .pf-mobile-link:hover { color: #0000C9; }
 
-/* 资讯门户移动端链接 */
-.portal-mobile-link {
-  background: linear-gradient(135deg, #f8fafc 0%, #eef5f9 100%);
-  border-radius: 8px;
-  padding: 16px 12px !important;
-  font-weight: 600 !important;
-  color: #0b3d5f !important;
-  border: 1px solid #c5d9e8;
-  margin: 4px 0;
-}
 
 .pf-mobile-cta { margin-top: 24px; }
 

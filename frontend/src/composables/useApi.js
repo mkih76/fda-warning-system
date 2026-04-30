@@ -4,7 +4,7 @@
  */
 import { useAuth } from './useAuth.js'
 
-const API = window.location.origin + '/api'
+const API = import.meta.env.VITE_API_URL || (window.location.origin + '/api')
 
 export function useApi() {
   const { token, logout } = useAuth()

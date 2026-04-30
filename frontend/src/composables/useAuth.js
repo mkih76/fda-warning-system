@@ -4,7 +4,7 @@
  */
 import { ref, computed } from 'vue'
 
-const API = window.location.origin + '/api'
+const API = import.meta.env.VITE_API_URL || (window.location.origin + '/api')
 
 const user = ref(null)
 const token = ref(localStorage.getItem('pharmacos-token') || '')
