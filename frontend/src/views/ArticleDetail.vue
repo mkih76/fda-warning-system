@@ -23,10 +23,32 @@
           </div>
           <h1>{{ article.title }}</h1>
           <p class="article-summary">{{ article.summary }}</p>
-          <div class="article-content" v-html="article.contentHtml"></div>
+          <!-- Full content (free or authorized) -->
+          <div v-if="canAccess" class="article-content" v-html="article.content_html || article.content"></div>
+
+          <!-- Partial content + paywall (unauthorized) -->
+          <template v-else-if="article.content">
+            <div class="article-content article-partial" v-html="article.content_html || article.content"></div>
+            <div class="paywall-overlay">
+              <div class="paywall-content">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="1.5"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                <h3>会员专享内容</h3>
+                <p>升级为专业版会员即可阅读全文</p>
+                <div class="paywall-actions">
+                  <template v-if="!isLoggedIn">
+                    <router-link to="/login" class="pf-btn pf-btn-primary">登录</router-link>
+                    <router-link to="/register" class="pf-btn pf-btn-outline-blue">注册免费账号</router-link>
+                  </template>
+                  <template v-else>
+                    <button class="pf-btn pf-btn-primary">升级会员</button>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
 
           <!-- 占位：内容建设中 -->
-          <div v-if="!article.contentHtml" class="placeholder-content">
+          <div v-else class="placeholder-content">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
               <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
             </svg>
@@ -55,14 +77,22 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuth } from '../composables/useAuth.js'
 
 const API = window.location.origin + '/api'
+const { user, isLoggedIn, isPro } = useAuth()
 
 const props = defineProps({ sector: { type: String, required: true } })
 const route = useRoute()
 
 const sectorNames = { pharma: '制药', cosmetics: '化妆品', food: '食品' }
 const sectorName = computed(() => sectorNames[props.sector] || props.sector)
+
+const canAccess = computed(() => {
+  if (article.value.access_level === 'free') return true
+  if (isPro.value) return true
+  return false
+})
 
 const article = ref({
   title: '加载中...',
@@ -176,6 +206,42 @@ onMounted(async () => {
 }
 
 .sidebar-hint { font-size: 13px; color: #999; margin: 0; }
+
+/* Paywall */
+.article-partial {
+  max-height: 600px;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.paywall-overlay {
+  background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 20%);
+  padding: 60px 0 20px;
+  margin-top: -40px;
+  text-align: center;
+}
+
+.paywall-content {
+  background: #F2F9FC;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 48px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.paywall-content h3 { font-size: 22px; font-weight: 700; color: #000; margin: 16px 0 8px; }
+.paywall-content p { font-size: 15px; color: #666; margin: 0 0 24px; }
+
+.paywall-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.pf-btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 28px; font-size: 14px; font-weight: 600; border-radius: 4px; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+.pf-btn-primary { background: #0000C9; color: #fff; }
+.pf-btn-primary:hover { background: #0000A3; }
+.pf-btn-outline-blue { background: transparent; color: #0000C9; border: 1px solid #0000C9; }
+.pf-btn-outline-blue:hover { background: rgba(0,0,201,0.05); }
 
 @media (max-width: 1024px) {
   .sector-container { padding: 0 16px; }

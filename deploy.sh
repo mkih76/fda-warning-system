@@ -1,32 +1,49 @@
 #!/bin/bash
-# FDA Warning System - 快速启动脚本
+# PharmaCos Insight - Deploy Script
+# Run on VPS: cd /root/fda-warning-system && bash deploy.sh
 
 set -e
 
-echo "=== FDA Warning System ==="
+echo "═══════════════════════════════════════"
+echo "  PharmaCos Insight 部署脚本"
+echo "═══════════════════════════════════════"
 
-# 1. 安装后端依赖
-echo "[1/4] 安装后端依赖..."
-cd /root/fda-warning-system/backend
-pip install -q fastapi uvicorn sqlalchemy pydantic httpx openpyxl apscheduler
-
-# 2. 初始化数据库
-echo "[2/4] 初始化数据库..."
-python3 scripts/init_db.py
-
-# 3. 启动后端
-echo "[3/4] 启动 FastAPI 后端..."
-nohup uvicorn backend.app.main:app --host 0.0.0.0 --port 8790 > /tmp/fda-backend.log 2>&1 &
-echo "PID: $!"
-sleep 3
-
-# 4. 验证
-echo "[4/4] 验证 API..."
-curl -s http://localhost:8790/api/health && echo ""
-curl -s http://localhost:8790/api/stats && echo ""
+# Navigate to project root
+cd "$(dirname "$0")"
 
 echo ""
-echo "✅ FDA Backend 启动完成!"
-echo "   API: http://localhost:8790"
-echo "   健康检查: http://localhost:8790/api/health"
-echo "   日志: /tmp/fda-backend.log"
+echo "[1/5] 拉取最新代码..."
+git pull origin main
+
+echo ""
+echo "[2/5] 安装前端依赖..."
+cd frontend && npm install
+
+echo ""
+echo "[3/5] 构建前端..."
+npm run build
+cd ..
+
+echo ""
+echo "[4/5] 安装后端依赖..."
+pip install -r backend/requirements.txt
+
+echo ""
+echo "[5/5] 重启 Docker 容器..."
+docker-compose down
+docker-compose up -d --build
+
+echo ""
+echo "═══════════════════════════════════════"
+echo "  部署完成！"
+echo "═══════════════════════════════════════"
+
+# Health check
+sleep 3
+echo ""
+echo "健康检查:"
+curl -s http://localhost:8790/api/health && echo ""
+
+echo ""
+echo "[可选] 初始化种子数据（分类+示例文章）:"
+echo "  docker exec fda-warning-backend python -m backend.scripts.seed_data"

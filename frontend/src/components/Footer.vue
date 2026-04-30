@@ -51,7 +51,7 @@
     <div class="pf-footer-bottom">
       <div class="pf-container">
         <div class="pf-footer-bottom-inner">
-          <p>&copy; {{ new Date().getFullYear() }} FDA 警告信智能平台. All rights reserved.</p>
+          <p>&copy; {{ new Date().getFullYear() }} PharmaCos Insight. All rights reserved.</p>
           <div class="pf-footer-bottom-links">
             <a href="https://github.com/mkih76/fda-warning-system" target="_blank">GitHub</a>
             <span>|</span>
