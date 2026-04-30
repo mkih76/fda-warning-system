@@ -24,13 +24,13 @@
     <!-- Three Sector Entry Cards -->
     <section class="pf-section pf-section-white">
       <div class="pf-container">
-        <div class="pf-section-header scroll-reveal">
+        <div class="pf-section-header">
           <h4 class="pf-eyebrow">行业板块</h4>
           <h2>三大行业知识体系</h2>
           <p>每个板块自成体系，涵盖行业动态、政策法规、知识专栏、案例研究</p>
         </div>
         <div class="sector-cards-grid">
-          <router-link to="/pharma" class="sector-entry-card scroll-reveal stagger-1" style="--sector-color: #0000C9">
+          <router-link to="/pharma" class="sector-entry-card" style="--sector-color: #0000C9">
             <div class="sector-img-wrapper">
               <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&q=80" alt="Pharmaceutical manufacturing" />
             </div>
@@ -43,7 +43,7 @@
               <span class="sector-entry-link">了解更多 →</span>
             </div>
           </router-link>
-          <router-link to="/cosmetics" class="sector-entry-card scroll-reveal stagger-2" style="--sector-color: #C45B9C">
+          <router-link to="/cosmetics" class="sector-entry-card" style="--sector-color: #C45B9C">
             <div class="sector-img-wrapper">
               <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80" alt="Cosmetics and skincare products" />
             </div>
@@ -56,7 +56,7 @@
               <span class="sector-entry-link">了解更多 →</span>
             </div>
           </router-link>
-          <router-link to="/food" class="sector-entry-card scroll-reveal stagger-3" style="--sector-color: #2D8C3C">
+          <router-link to="/food" class="sector-entry-card" style="--sector-color: #2D8C3C">
             <div class="sector-img-wrapper">
               <img src="https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?w=600&q=80" alt="Food safety and inspection" />
             </div>
@@ -76,7 +76,7 @@
     <!-- Latest Knowledge Articles -->
     <section v-if="latestArticles.length > 0" class="pf-section pf-section-light">
       <div class="pf-container">
-        <div class="pf-section-header scroll-reveal">
+        <div class="pf-section-header">
           <h4 class="pf-eyebrow">知识输出</h4>
           <h2>最新知识文章</h2>
           <p>来自制药、化妆品、食品三大板块的最新专业内容</p>
@@ -85,7 +85,7 @@
           <div
             v-for="article in latestArticles.slice(0, 6)"
             :key="article.id"
-            class="latest-article-card scroll-reveal stagger"
+            class="latest-article-card stagger"
             @click="$router.push(`/${article.sector}/article/${article.slug}`)"
           >
             <div class="lac-meta">
@@ -104,7 +104,7 @@
     </section>
 
     <!-- Two Column - Image + Text (AI section) -->
-    <section class="pf-section pf-section-white scroll-reveal">
+    <section class="pf-section pf-section-white">
       <div class="pf-container">
         <div class="pf-two-col">
           <div class="pf-two-col-img">
@@ -115,7 +115,7 @@
               />
             </div>
           </div>
-          <div class="pf-two-col-text scroll-reveal">
+          <div class="pf-two-col-text">
             <h4>AI 驱动的智能翻译与分析</h4>
             <p>采用最先进的 AI 大语言模型，自动翻译 FDA 英文警告信为精准中文，同时智能识别违规类型、风险等级和关键 CFR 条款引用。</p>
             <router-link to="/letters" class="pf-btn pf-btn-primary">了解更多</router-link>
@@ -128,11 +128,11 @@
     <section class="pf-section pf-section-light">
       <div class="pf-container">
         <div class="pf-two-col pf-two-col-reverse">
-          <div class="pf-two-col-text scroll-reveal">
+          <div class="pf-two-col-text">
             <h4>最新警告信动态</h4>
             <p>实时同步 FDA 官方数据，第一时间推送最新发布的警告信，确保您不错过任何重要的合规风险信号。</p>
             <div class="pf-article-list">
-              <div v-for="(letter, i) in latestLetters" :key="i" class="pf-article-item scroll-reveal stagger" @click="$router.push(`/letters/${letter.id}`)">
+              <div v-for="(letter, i) in latestLetters" :key="i" class="pf-article-item stagger" @click="$router.push(`/letters/${letter.id}`)">
                 <span class="pf-article-date">{{ letter.issue_date }}</span>
                 <span class="pf-article-sep">|</span>
                 <span class="pf-article-type">{{ letter.issuing_office }}</span>
@@ -160,25 +160,25 @@
     <!-- Stats Section - White background -->
     <section class="pf-section pf-section-white">
       <div class="pf-container">
-        <div class="pf-section-header scroll-reveal">
+        <div class="pf-section-header">
           <h4 class="pf-eyebrow">数据洞察</h4>
           <h2>用数据驱动合规决策</h2>
           <p>我们实时同步 FDA 官方数据，通过 AI 智能分析，为您提供深度的行业洞察和风险预警。</p>
         </div>
         <div class="pf-stats-grid">
-          <div class="pf-stat-card scroll-reveal stagger">
+          <div class="pf-stat-card stagger">
             <span class="pf-stat-number">986</span>
             <span class="pf-stat-label">警告信总数</span>
           </div>
-          <div class="pf-stat-card scroll-reveal stagger">
+          <div class="pf-stat-card stagger">
             <span class="pf-stat-number">100%</span>
             <span class="pf-stat-label">中文翻译</span>
           </div>
-          <div class="pf-stat-card scroll-reveal stagger">
+          <div class="pf-stat-card stagger">
             <span class="pf-stat-number">12</span>
             <span class="pf-stat-label">签发办公室</span>
           </div>
-          <div class="pf-stat-card scroll-reveal stagger">
+          <div class="pf-stat-card stagger">
             <span class="pf-stat-number">24h</span>
             <span class="pf-stat-label">实时同步</span>
           </div>
@@ -190,7 +190,7 @@
     <section class="pf-section pf-section-light">
       <div class="pf-container">
         <div class="pf-two-col">
-          <div class="pf-two-col-img scroll-reveal">
+          <div class="pf-two-col-img">
             <div class="pf-img-interactive">
               <img
                 src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"
@@ -202,11 +202,11 @@
               </div>
             </div>
           </div>
-          <div class="pf-two-col-text scroll-reveal">
+          <div class="pf-two-col-text">
             <h4>全方位合规保障</h4>
             <p>我们提供完整的 FDA 警告信监控和分析解决方案，涵盖数据采集、AI 处理、风险评估到数据可视化的全链路。</p>
             <div class="pf-feature-list">
-              <div class="pf-feature-item scroll-reveal stagger">
+              <div class="pf-feature-item stagger">
                 <div class="pf-feature-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
@@ -215,7 +215,7 @@
                   <span>每日自动同步 FDA 官方数据</span>
                 </div>
               </div>
-              <div class="pf-feature-item scroll-reveal stagger">
+              <div class="pf-feature-item stagger">
                 <div class="pf-feature-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M3 5h12M9 3v2m3.356 9.356l2.293 2.293M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -224,7 +224,7 @@
                   <span>100% 准确翻译为中文</span>
                 </div>
               </div>
-              <div class="pf-feature-item scroll-reveal stagger">
+              <div class="pf-feature-item stagger">
                 <div class="pf-feature-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
@@ -233,7 +233,7 @@
                   <span>AI 驱动的风险评分</span>
                 </div>
               </div>
-              <div class="pf-feature-item scroll-reveal stagger">
+              <div class="pf-feature-item stagger">
                 <div class="pf-feature-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M3 3v18h18M9 17V9m4 8V5m4 12v-4"/></svg>
                 </div>
@@ -251,13 +251,13 @@
     <!-- Workflow Section - White -->
     <section class="pf-section pf-section-white">
       <div class="pf-container">
-        <div class="pf-section-header scroll-reveal">
+        <div class="pf-section-header">
           <h4 class="pf-eyebrow">工作流程</h4>
           <h2>从数据到洞察</h2>
           <p>三步流水线确保您获得最准确、最及时的 FDA 警告信信息</p>
         </div>
         <div class="pf-steps-grid">
-          <div class="pf-step-card scroll-reveal stagger">
+          <div class="pf-step-card stagger">
             <div class="pf-step-num">01</div>
             <div class="pf-step-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -265,7 +265,7 @@
             <h4>数据采集</h4>
             <p>爬虫每日从 FDA 官方来源抓取最新警告信并更新数据库</p>
           </div>
-          <div class="pf-step-card scroll-reveal stagger">
+          <div class="pf-step-card stagger">
             <div class="pf-step-num">02</div>
             <div class="pf-step-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -273,7 +273,7 @@
             <h4>AI 处理</h4>
             <p>每封信经过翻译、分类、摘要流水线处理，采用最先进的 LLM 模型</p>
           </div>
-          <div class="pf-step-card scroll-reveal stagger">
+          <div class="pf-step-card stagger">
             <div class="pf-step-num">03</div>
             <div class="pf-step-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0000C9" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -286,7 +286,7 @@
     </section>
 
     <!-- CTA - Dark blue -->
-    <section class="pf-cta scroll-reveal">
+    <section class="pf-cta">
       <div class="pf-container">
         <div class="pf-cta-content">
           <h2>准备好开始了吗？</h2>
@@ -331,7 +331,7 @@ onMounted(async () => {
     })
   }, 100)
 
-  // Setup scroll observer
+  // Setup scroll observer — generous rootMargin so near-viewport elements reveal early
   observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -340,8 +340,8 @@ onMounted(async () => {
       }
     })
   }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
+    threshold: 0.05,
+    rootMargin: '200px 0px -20px 0px'
   })
 
   document.querySelectorAll('.scroll-reveal, .stagger, .stagger-1, .stagger-2, .stagger-3').forEach(el => {
@@ -605,6 +605,7 @@ onUnmounted(() => {
 .pf-section {
   padding: 60px 0;
   position: relative;
+  overflow: hidden;
 }
 
 .pf-section::before {
@@ -615,8 +616,7 @@ onUnmounted(() => {
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(0,0,201,0.2), transparent);
-  opacity: 0;
-  transition: opacity 0.6s ease-out;
+  opacity: 1;
 }
 
 .pf-section.revealed::before {
@@ -644,9 +644,7 @@ onUnmounted(() => {
   text-transform: uppercase;
   color: #0000C9;
   margin: 0 0 12px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  opacity: 1;
 }
 
 .scroll-reveal.revealed .pf-eyebrow,
@@ -688,8 +686,7 @@ onUnmounted(() => {
   transition: all 0.25s ease-out;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  transform: translateY(30px);
+  opacity: 1;
 }
 
 .latest-article-card.revealed {
@@ -764,8 +761,6 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  transform: translateY(30px);
 }
 
 .sector-entry-card.revealed {
@@ -887,9 +882,7 @@ onUnmounted(() => {
 
 .pf-two-col-img {
   width: 100%;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  opacity: 1;
 }
 
 .pf-two-col-img.revealed {
@@ -981,6 +974,11 @@ onUnmounted(() => {
   line-height: 1.3;
 }
 
+.pf-two-col-text {
+  overflow: hidden;
+  min-width: 0;
+}
+
 .pf-two-col-text > p {
   font-size: 16px;
   color: #333;
@@ -995,6 +993,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
+  overflow: hidden;
 }
 
 .pf-article-item {
@@ -1005,8 +1004,9 @@ onUnmounted(() => {
   border-bottom: 1px solid #e5e7eb;
   cursor: pointer;
   transition: all 0.15s ease-out;
-  opacity: 0;
-  transform: translateX(20px);
+  opacity: 1;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .pf-article-item.revealed {
@@ -1042,6 +1042,11 @@ onUnmounted(() => {
   color: #0000C9;
   text-decoration: none;
   transition: color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 
 .pf-article-item:hover .pf-article-title {
@@ -1065,13 +1070,7 @@ onUnmounted(() => {
   border-radius: 8px;
   border: 1px solid rgba(0,0,201,0.08);
   transition: all 0.3s ease-out;
-  opacity: 0;
-  transform: translateY(30px);
-}
-
-.pf-stat-card.revealed {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .pf-stat-card:hover {
@@ -1108,9 +1107,7 @@ onUnmounted(() => {
   display: flex;
   gap: 16px;
   align-items: flex-start;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  opacity: 1;
 }
 
 .pf-feature-item.revealed {
@@ -1163,13 +1160,7 @@ onUnmounted(() => {
   border-radius: 8px;
   position: relative;
   transition: all 0.3s ease-out;
-  opacity: 0;
-  transform: translateY(30px);
-}
-
-.pf-step-card.revealed {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .pf-step-card:hover {

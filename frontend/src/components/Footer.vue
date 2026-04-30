@@ -14,35 +14,6 @@
             </svg>
             <p class="pf-footer-desc">AI 驱动的 FDA 警告信监控与智能分析系统，助力中国制药企业合规出海，覆盖 986+ 封警告信，100% 中文翻译。</p>
           </div>
-
-          <!-- Links -->
-          <div class="pf-footer-links">
-            <div class="pf-footer-col">
-              <h4>行业板块</h4>
-              <router-link to="/pharma">制药</router-link>
-              <router-link to="/cosmetics">化妆品</router-link>
-              <router-link to="/food">食品</router-link>
-            </div>
-            <div class="pf-footer-col">
-              <h4>综合资源</h4>
-              <router-link to="/general">综合知识库</router-link>
-              <router-link to="/letters">FDA 警告信</router-link>
-              <router-link to="/dashboard">数据看板</router-link>
-              <router-link to="/tools">实用工具</router-link>
-            </div>
-            <div class="pf-footer-col">
-              <h4>内容</h4>
-              <router-link to="/articles">深度内容</router-link>
-              <router-link to="/news">行业资讯</router-link>
-              <router-link to="/regulations">法规信息</router-link>
-            </div>
-            <div class="pf-footer-col">
-              <h4>关于</h4>
-              <router-link to="/about">平台介绍</router-link>
-              <a href="https://github.com/mkih76/fda-warning-system" target="_blank">GitHub</a>
-              <a href="mailto:contact@example.com">联系我们</a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -74,9 +45,7 @@
 }
 
 .pf-footer-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 2.5fr;
-  gap: 40px;
+  display: flex;
 }
 
 .pf-footer-brand {
@@ -95,34 +64,8 @@
   line-height: 1.6;
   color: rgba(255,255,255,0.6);
   margin: 0;
-  max-width: 280px;
+  max-width: 480px;
 }
-
-.pf-footer-links {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
-
-.pf-footer-col h4 {
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.pf-footer-col a {
-  display: block;
-  font-size: 13px;
-  color: rgba(255,255,255,0.6);
-  text-decoration: none;
-  padding: 5px 0;
-  transition: color 0.2s;
-}
-
-.pf-footer-col a:hover { color: #fff; }
 
 /* Bottom bar */
 .pf-footer-bottom {
@@ -163,19 +106,12 @@
 
 @media (max-width: 1024px) {
   .pf-footer-grid {
-    grid-template-columns: 1fr;
-    gap: 48px;
-  }
-  .pf-footer-links {
-    grid-template-columns: repeat(3, 1fr);
+    flex-direction: column;
+    gap: 24px;
   }
 }
 
 @media (max-width: 640px) {
-  .pf-footer-links {
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
   .pf-footer-bottom-inner {
     flex-direction: column;
     gap: 8px;

@@ -1,10 +1,11 @@
+import json
 """
 资讯门户API路由
 提供门户页面所需的各类数据接口
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select, func, desc, and_
 from datetime import datetime, timedelta
 from typing import Optional, List
@@ -14,7 +15,7 @@ from ..database import get_db
 from ..models_new import Article, Subscription
 from ..models import WarningLetter
 
-router = APIRouter(prefix="/portal", tags=["portal"])
+router = APIRouter(prefix="/api/portal", tags=["portal"])
 
 
 # ==================== 数据模型 ====================
@@ -66,7 +67,7 @@ class SubscribeResponse(BaseModel):
 @router.get("/headlines", response_model=List[HeadlineResponse])
 async def get_headlines(
     limit: int = 3,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     获取头条新闻（置顶文章）
@@ -85,7 +86,7 @@ async def get_headlines(
             .order_by(desc(Article.published_at))
             .limit(limit)
         )
-        result = await db.execute(query)
+        result = db.execute(query)
         headlines = result.scalars().all()
 
         # 如果头条不足，补充最新文章
@@ -93,7 +94,7 @@ async def get_headlines(
             existing_ids = [h.id for h in headlines]
             remaining = limit - len(headlines)
 
-           补充_query = (
+            supp_query = (
                 select(Article)
                 .where(
                     and_(
@@ -104,9 +105,9 @@ async def get_headlines(
                 .order_by(desc(Article.published_at))
                 .limit(remaining)
             )
-            补充_result = await db.execute(补充_query)
-            补充_articles = 补充_result.scalars().all()
-            headlines = list(headlines) + list(补充_articles)
+            supp_result = db.execute(补充_query)
+            supp_articles = supp_result.scalars().all()
+            headlines = list(headlines) + list(supp_articles)
 
         return [
             HeadlineResponse(
@@ -140,7 +141,7 @@ async def get_headlines(
 async def get_industry_news(
     sector: str,
     limit: int = 4,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     获取某个行业的最新动态
@@ -162,7 +163,7 @@ async def get_industry_news(
             .order_by(desc(Article.published_at))
             .limit(limit)
         )
-        result = await db.execute(query)
+        result = db.execute(query)
         articles = result.scalars().all()
 
         return [
@@ -178,8 +179,8 @@ async def get_industry_news(
         ]
 
     except Exception as e:
-        # 返回静态示例数据
-        示例数据 = {
+        # 返回静态fallback
+        fallback = {
             'pharma': [
                 IndustryNewsItem(id=1, title="NMPA发布新版《药品生产质量管理规范》附录", summary="", sector="pharma", published_at=datetime.now(), category_name="GMP法规"),
                 IndustryNewsItem(id=2, title="ICH Q12指南在国内落地实施进展", summary="", sector="pharma", published_at=datetime.now(), category_name="ICH指南"),
@@ -199,14 +200,14 @@ async def get_industry_news(
                 IndustryNewsItem(id=12, title="进出口食品安全管理办法最新修订动态", summary="", sector="food", published_at=datetime.now(), category_name="进出口"),
             ]
         }
-        return 示例数据.get(sector, [])
+        return fallback.get(sector, [])
 
 
 @router.get("/hot", response_model=List[HotArticleItem])
 async def get_hot_articles(
     limit: int = 8,
     days: int = 7,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     获取热门文章排行
@@ -228,7 +229,7 @@ async def get_hot_articles(
             .order_by(desc(Article.view_count))
             .limit(limit)
         )
-        result = await db.execute(query)
+        result = db.execute(query)
         articles = result.scalars().all()
 
         return [
@@ -244,7 +245,7 @@ async def get_hot_articles(
         ]
 
     except Exception as e:
-        # 返回静态示例数据
+        # 返回静态fallback
         return [
             HotArticleItem(id=1, title="FDA警告信深度解读：数据完整性缺陷的十大常见问题", sector="pharma", view_count=5200, hot_score=98.5, published_at=datetime.now()),
             HotArticleItem(id=2, title="化妆品安全评估报告编写指南（2026版）", sector="cosmetics", view_count=4800, hot_score=96.2, published_at=datetime.now()),
@@ -258,28 +259,28 @@ async def get_hot_articles(
 
 
 @router.get("/stats", response_model=PortalStatsResponse)
-async def get_portal_stats(db: AsyncSession = Depends(get_db)):
+async def get_portal_stats(db: Session = Depends(get_db)):
     """
     获取门户统计数据
     """
     try:
         # 查询FDA警告信总数
-        letters_count = await db.execute(select(func.count(WarningLetter.id)))
+        letters_count = db.execute(select(func.count(WarningLetter.id)))
         total_letters = letters_count.scalar() or 0
 
         # 查询文章总数
-        articles_count = await db.execute(select(func.count(Article.id)))
+        articles_count = db.execute(select(func.count(Article.id)))
         total_articles = articles_count.scalar() or 0
 
         # 查询签发办公室数量
-        offices_count = await db.execute(
+        offices_count = db.execute(
             select(func.count(func.distinct(WarningLetter.issuing_office)))
         )
         total_offices = offices_count.scalar() or 0
 
         # 查询本月新增文章
         month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0)
-        monthly_count = await db.execute(
+        monthly_count = db.execute(
             select(func.count(Article.id))
             .where(Article.published_at >= month_start)
         )
@@ -288,7 +289,7 @@ async def get_portal_stats(db: AsyncSession = Depends(get_db)):
         # 各行业文章数量
         sector_counts = {}
         for sector in ['pharma', 'cosmetics', 'food']:
-            count = await db.execute(
+            count = db.execute(
                 select(func.count(Article.id))
                 .where(Article.sector == sector)
             )
@@ -316,14 +317,14 @@ async def get_portal_stats(db: AsyncSession = Depends(get_db)):
 @router.post("/subscribe", response_model=SubscribeResponse)
 async def subscribe(
     request: SubscribeRequest,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     订阅邮件周报
     """
     try:
         # 检查是否已订阅
-        existing = await db.execute(
+        existing = db.execute(
             select(Subscription)
             .where(Subscription.email == request.email)
         )
@@ -337,12 +338,12 @@ async def subscribe(
         subscription = Subscription(
             email=request.email,
             name=request.name,
-            sectors=request.sectors,
+            sectors=json.dumps(request.sectors) if isinstance(request.sectors, list) else request.sectors,
             is_active=True,
             created_at=datetime.now()
         )
         db.add(subscription)
-        await db.commit()
+        db.commit()
 
         return SubscribeResponse(
             success=True,
