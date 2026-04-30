@@ -101,6 +101,11 @@ const router = createRouter({
       name: 'general-home',
       component: () => import('../views/general/GeneralHome.vue'),
     },
+    {
+      path: '/general/gmp-panorama',
+      name: 'gmp-panorama',
+      component: () => import('../views/general/GmpPanorama.vue'),
+    },
 
     // ═══ 工具 ═══
     {
