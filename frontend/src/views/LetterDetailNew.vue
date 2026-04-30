@@ -493,7 +493,7 @@ onMounted(() => {
    Page Header
 ═══════════════════════════════════════════════════════════════ */
 .page-header {
-  background: var(--bg-primary);
+  background: #f5f5f5;
   border-bottom: 1px solid var(--border-default);
   padding: var(--space-4) 0;
 }
@@ -512,7 +512,7 @@ onMounted(() => {
 }
 
 .breadcrumb a:hover {
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .breadcrumb .separator {
@@ -573,7 +573,7 @@ onMounted(() => {
 .letter-header {
   background: var(--bg-primary);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
   padding: var(--space-8);
   margin-bottom: var(--space-8);
 }
@@ -645,14 +645,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-primary-50);
-  color: var(--color-primary-600);
+  background: #F2F9FC;
+  color: #0000C9;
   border-radius: var(--radius-lg);
 }
 
-.dark .meta-icon {
-  background: rgba(59, 130, 246, 0.1);
-}
 
 .meta-label {
   display: block;
@@ -716,8 +713,8 @@ onMounted(() => {
 /* Cards */
 .card {
   background: var(--bg-primary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -762,8 +759,8 @@ onMounted(() => {
 }
 
 .citations-icon {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: rgba(0, 0, 201, 0.1);
+  color: #0000C9;
 }
 
 .translation-icon {
@@ -989,15 +986,15 @@ onMounted(() => {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .cfr-part {
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .cfr-section {
-  color: var(--color-primary-400);
+  color: #3333D4;
 }
 
 .citation-text {
@@ -1071,18 +1068,15 @@ onMounted(() => {
   padding: var(--space-3);
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  color: var(--color-primary-600);
+  color: #0000C9;
   text-decoration: none;
   transition: all var(--duration-fast);
 }
 
 .link-item:hover {
-  background: var(--color-primary-50);
+  background: #F2F9FC;
 }
 
-.dark .link-item:hover {
-  background: rgba(59, 130, 246, 0.1);
-}
 
 .share-buttons {
   display: flex;

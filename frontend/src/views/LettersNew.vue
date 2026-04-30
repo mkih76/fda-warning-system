@@ -523,16 +523,17 @@ onMounted(() => {
 ═══════════════════════════════════════════════════════════════ */
 .letters-page {
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: #ffffff;
   padding-top: var(--header-height);
+  font-family: 'Noto Sans', 'Noto Sans SC', Arial, sans-serif;
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Page Header
 ═══════════════════════════════════════════════════════════════ */
 .page-header {
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-default);
+  background: #f5f5f5;
+  border-bottom: 1px solid #e5e7eb;
   padding: var(--space-8) 0;
 }
 
@@ -565,7 +566,7 @@ onMounted(() => {
 }
 
 .breadcrumb a:hover {
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .breadcrumb .separator {
@@ -578,10 +579,11 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: var(--text-3xl);
+  font-size: var(--text-4xl);
   font-weight: var(--font-bold);
-  color: var(--text-primary);
+  color: #000;
   margin-bottom: var(--space-2);
+  font-family: 'Noto Sans', Arial, sans-serif;
 }
 
 .page-description {
@@ -601,13 +603,13 @@ onMounted(() => {
   gap: var(--space-1);
   padding: var(--space-2) var(--space-4);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-lg);
+  border-radius: 4px;
 }
 
 .count-number {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .count-label {
@@ -625,7 +627,7 @@ onMounted(() => {
 .filter-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
 }
@@ -659,7 +661,7 @@ onMounted(() => {
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-12);
   background: var(--bg-secondary);
   border: 2px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 4px;
   font-size: var(--text-base);
   color: var(--text-primary);
   transition: all var(--duration-fast);
@@ -669,7 +671,7 @@ onMounted(() => {
   outline: none;
   border-color: var(--color-primary-500);
   background: var(--bg-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 0, 201, 0.15);
 }
 
 .search-input::placeholder {
@@ -788,7 +790,7 @@ onMounted(() => {
 .skeleton-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
   padding: var(--space-5);
 }
 
@@ -851,7 +853,7 @@ onMounted(() => {
 .letter-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
   padding: var(--space-5);
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-default);
@@ -861,7 +863,7 @@ onMounted(() => {
 }
 
 .letter-card:hover {
-  border-color: var(--color-primary-300);
+  border-color: #0000C9;
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
 }
@@ -958,7 +960,7 @@ onMounted(() => {
 /* Letter Preview */
 .letter-preview {
   background: var(--bg-tertiary);
-  border-radius: var(--radius-lg);
+  border-radius: 4px;
   padding: var(--space-3);
 }
 

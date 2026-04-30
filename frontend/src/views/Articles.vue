@@ -145,7 +145,7 @@ onMounted(() => {
 
 /* 页面头部 */
 .page-header {
-  background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+  background: linear-gradient(135deg, #0000C9 0%, #000049 100%);
   padding: 120px 32px 60px;
   text-align: center;
 }
@@ -210,13 +210,13 @@ onMounted(() => {
 }
 
 .category-btn:hover {
-  border-color: #0066cc;
-  color: #0066cc;
+  border-color: #0000C9;
+  color: #0000C9;
 }
 
 .category-btn.active {
-  background: #0066cc;
-  border-color: #0066cc;
+  background: #0000C9;
+  border-color: #0000C9;
   color: white;
 }
 
@@ -258,7 +258,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 3px solid #e5e7eb;
-  border-top-color: #0066cc;
+  border-top-color: #0000C9;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -305,7 +305,7 @@ onMounted(() => {
 }
 
 .article-card:hover {
-  border-color: #0066cc;
+  border-color: #0000C9;
   box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
   transform: translateY(-2px);
 }
@@ -322,7 +322,7 @@ onMounted(() => {
 
 .cat-analysis {
   background: rgba(0, 102, 204, 0.1);
-  color: #0066cc;
+  color: #0000C9;
 }
 
 .cat-guide {
@@ -371,7 +371,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #0066cc;
+  color: #0000C9;
   font-weight: 500;
 }
 
@@ -387,7 +387,7 @@ onMounted(() => {
 }
 
 .article-card:hover .arrow {
-  color: #0066cc;
+  color: #0000C9;
   transform: translateX(4px);
 }
 

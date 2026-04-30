@@ -199,7 +199,7 @@ onMounted(() => {
 
 /* 页面头部 */
 .page-header {
-  background: linear-gradient(135deg, #0093D0 0%, #0052CC 100%);
+  background: linear-gradient(135deg, #0000C9 0%, #000057 100%);
   padding: 120px 32px 60px;
   text-align: center;
 }
@@ -283,8 +283,8 @@ onMounted(() => {
 }
 
 .reset-btn:hover {
-  border-color: #0093D0;
-  color: #0093D0;
+  border-color: #0000C9;
+  color: #0000C9;
 }
 
 /* 内容区域 */
@@ -319,7 +319,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 3px solid #e5e7eb;
-  border-top-color: #0093D0;
+  border-top-color: #0000C9;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -348,7 +348,7 @@ onMounted(() => {
 .cta-btn {
   margin-top: 16px;
   padding: 12px 24px;
-  background: #0093D0;
+  background: #0000C9;
   color: white;
   border: none;
   border-radius: 8px;
@@ -359,7 +359,7 @@ onMounted(() => {
 }
 
 .cta-btn:hover {
-  background: #0077b3;
+  background: #0000A3;
 }
 
 /* 法规列表 */
@@ -378,7 +378,7 @@ onMounted(() => {
 }
 
 .regulation-card:hover {
-  border-color: #0093D0;
+  border-color: #0000C9;
   box-shadow: 0 4px 12px rgba(0, 147, 208, 0.1);
 }
 
@@ -403,7 +403,7 @@ onMounted(() => {
 
 .region-usa {
   background: rgba(0, 147, 208, 0.1);
-  color: #0093D0;
+  color: #0000C9;
 }
 
 .region-eu {
@@ -458,7 +458,7 @@ onMounted(() => {
 }
 
 .view-link {
-  color: #0093D0;
+  color: #0000C9;
 }
 
 .view-link svg {
@@ -467,7 +467,7 @@ onMounted(() => {
 }
 
 .view-link:hover {
-  color: #0077b3;
+  color: #0000A3;
 }
 
 .pdf-link {
@@ -500,8 +500,8 @@ onMounted(() => {
 }
 
 .page-btn:hover:not(:disabled) {
-  border-color: #0093D0;
-  color: #0093D0;
+  border-color: #0000C9;
+  color: #0000C9;
 }
 
 .page-btn:disabled {

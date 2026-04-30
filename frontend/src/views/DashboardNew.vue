@@ -44,7 +44,7 @@
         <!-- 统计卡片 -->
         <div class="stats-grid animate-fade-in-up">
           <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <div class="stat-icon" style="background: rgba(0, 0, 201, 0.1); color: #0000C9;">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -270,7 +270,7 @@
           <h2>快速操作</h2>
           <div class="actions-grid">
             <router-link to="/letters" class="action-card">
-              <div class="action-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+              <div class="action-icon" style="background: rgba(0, 0, 201, 0.1); color: #0000C9;">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -396,12 +396,12 @@ function getRiskLabel(count) {
 
 function getChartColors() {
   return {
-    primary: isDark.value ? '#60a5fa' : '#3b82f6',
-    primaryLight: isDark.value ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-    grid: isDark.value ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-    text: isDark.value ? '#94a3b8' : '#64748b',
-    tooltipBg: isDark.value ? '#1e293b' : '#0f172a',
-    tooltipText: isDark.value ? '#f1f5f9' : '#ffffff'
+    primary: '#0000C9',
+    primaryLight: 'rgba(0, 0, 201, 0.1)',
+    grid: 'rgba(0, 0, 0, 0.04)',
+    text: '#666666',
+    tooltipBg: '#0f172a',
+    tooltipText: '#ffffff'
   }
 }
 
@@ -563,7 +563,7 @@ onMounted(() => {
 ═══════════════════════════════════════════════════════════════ */
 .dashboard-page {
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: #ffffff;
   padding-top: var(--header-height);
 }
 
@@ -571,8 +571,8 @@ onMounted(() => {
    Page Header
 ═══════════════════════════════════════════════════════════════ */
 .page-header {
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-default);
+  background: #f5f5f5;
+  border-bottom: 1px solid #e5e7eb;
   padding: var(--space-8) 0;
 }
 
@@ -605,7 +605,7 @@ onMounted(() => {
 }
 
 .breadcrumb a:hover {
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 .breadcrumb .separator {
@@ -639,7 +639,7 @@ onMounted(() => {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: var(--bg-tertiary);
+  background: #f0f0f0;
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
   color: var(--text-secondary);
@@ -674,7 +674,7 @@ onMounted(() => {
 
 .skeleton-stat {
   height: 120px;
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
 }
 
 .skeleton-charts-grid {
@@ -685,7 +685,7 @@ onMounted(() => {
 
 .skeleton-chart {
   height: 350px;
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -706,9 +706,9 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   padding: var(--space-6);
   display: flex;
   align-items: flex-start;
@@ -728,7 +728,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
 }
 
 .stat-content {
@@ -792,15 +792,15 @@ onMounted(() => {
 
 /* Cards */
 .card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .card-header {
   padding: var(--space-5) var(--space-6);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -831,12 +831,8 @@ onMounted(() => {
 }
 
 .chart-actions .active {
-  background: var(--color-primary-50);
-  color: var(--color-primary-600);
-}
-
-.dark .chart-actions .active {
-  background: rgba(59, 130, 246, 0.1);
+  background: #F2F9FC;
+  color: #0000C9;
 }
 
 /* Chart Container */
@@ -988,7 +984,7 @@ onMounted(() => {
   font-size: var(--text-xs);
   font-weight: var(--font-bold);
   color: var(--text-secondary);
-  background: var(--bg-tertiary);
+  background: #f0f0f0;
   border-radius: var(--radius-full);
 }
 
@@ -1015,14 +1011,14 @@ onMounted(() => {
 
 .office-bar {
   height: 6px;
-  background: var(--bg-tertiary);
+  background: #f0f0f0;
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .office-progress {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
+  background: linear-gradient(90deg, #0066B3, #0000C9);
   border-radius: var(--radius-full);
   transition: width var(--duration-slow) var(--ease-out);
 }
@@ -1056,19 +1052,19 @@ onMounted(() => {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-default);
+  background: #f5f5f5;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .companies-table td {
   padding: var(--space-4);
   font-size: var(--text-sm);
   color: var(--text-primary);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .companies-table tr:hover {
-  background: var(--bg-secondary);
+  background: #f5f5f5;
 }
 
 .table-rank {
@@ -1080,7 +1076,7 @@ onMounted(() => {
   font-size: var(--text-xs);
   font-weight: var(--font-bold);
   color: var(--text-secondary);
-  background: var(--bg-tertiary);
+  background: #f0f0f0;
   border-radius: var(--radius-full);
 }
 
@@ -1095,7 +1091,7 @@ onMounted(() => {
 
 .company-count {
   font-weight: var(--font-bold);
-  color: var(--color-primary-600);
+  color: #0000C9;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1124,16 +1120,16 @@ onMounted(() => {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-6);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   text-align: center;
   text-decoration: none;
   transition: all var(--duration-normal);
 }
 
 .action-card:hover {
-  border-color: var(--color-primary-300);
+  border-color: #0000C9;
   box-shadow: var(--shadow-md);
   transform: translateY(-4px);
 }
@@ -1144,7 +1140,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-xl);
+  border-radius: 8px;
 }
 
 .action-card h3 {
