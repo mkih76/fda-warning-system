@@ -148,11 +148,14 @@ onMounted(async () => {
 }
 
 .article-body h1 {
-  font-size: 36px;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', 'Songti SC', 'Times New Roman', serif;
+  font-size: 26px;
   font-weight: 700;
   color: #000;
-  line-height: 1.3;
-  margin: 16px 0;
+  line-height: 1.4;
+  margin: 16px 0 20px;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
 .article-meta-top {
@@ -167,152 +170,205 @@ onMounted(async () => {
 .meta-views { font-size: 13px; color: #999; }
 
 .article-summary {
-  font-size: 18px;
-  color: #666;
+  font-family: 'Noto Sans SC', 'Source Han Sans SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  color: #444;
   line-height: 1.7;
-  margin: 0 0 32px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.article-content {
-  font-size: 16px;
-  line-height: 1.8;
-  color: #333;
-}
-
-.article-content :deep(p) {
-  margin: 0 0 20px;
-  line-height: 1.8;
+  margin: 0 auto 28px;
+  padding: 16px 20px;
+  max-width: 680px;
   text-align: justify;
+  background: #fafafa;
+  border-left: 3px solid #0000C9;
 }
 
+/* ── 论文级排版 ── */
+.article-content {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', 'Songti SC', 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #1a1a1a;
+  max-width: 780px;
+}
+
+/* 段落：首行缩进 + 两端对齐 */
+.article-content :deep(p) {
+  margin: 0 0 16px;
+  text-indent: 2em;
+  text-align: justify;
+  line-height: 1.8;
+  orphans: 3;
+  widows: 3;
+}
+
+/* 标题不缩进 */
+.article-content :deep(h1),
+.article-content :deep(h2),
+.article-content :deep(h3),
+.article-content :deep(h4),
+.article-content :deep(h5) {
+  text-indent: 0;
+  text-align: left;
+}
+
+/* 一级标题：文章大标题（h1 在内容中） */
 .article-content :deep(h1) {
-  font-size: 28px;
-  font-weight: 700;
-  color: #000;
-  margin: 40px 0 16px;
-  line-height: 1.3;
-}
-
-.article-content :deep(h2) {
   font-size: 22px;
   font-weight: 700;
   color: #000;
-  margin: 36px 0 14px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #0000C9;
+  margin: 36px 0 12px;
   line-height: 1.4;
+  letter-spacing: 0.5px;
 }
 
+/* 二级标题：如 "一、检查前准备" */
+.article-content :deep(h2) {
+  font-size: 17px;
+  font-weight: 700;
+  color: #000;
+  margin: 32px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #d0d0d0;
+  line-height: 1.5;
+}
+
+/* 三级标题：如 "1.1 了解检查类型" */
 .article-content :deep(h3) {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 28px 0 12px;
-  line-height: 1.4;
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+  margin: 24px 0 8px;
+  line-height: 1.5;
 }
 
+/* 四级标题 */
 .article-content :deep(h4) {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #333;
-  margin: 24px 0 10px;
+  margin: 20px 0 6px;
 }
 
+/* 列表 */
 .article-content :deep(ul),
 .article-content :deep(ol) {
-  margin: 0 0 20px;
-  padding-left: 28px;
+  margin: 0 0 16px;
+  padding-left: 2em;
+  text-indent: 0;
 }
 
 .article-content :deep(li) {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.7;
+  text-indent: 0;
 }
 
+/* 表格：论文风格 — 三线表 */
 .article-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0 28px;
-  font-size: 15px;
+  margin: 20px auto 24px;
+  font-size: 14px;
+  font-family: 'Noto Sans SC', 'Source Han Sans SC', 'Microsoft YaHei', sans-serif;
 }
 
 .article-content :deep(thead) {
-  background: #f0f0f0;
+  background: transparent;
 }
 
 .article-content :deep(th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
+  padding: 8px 12px;
+  text-align: center;
+  font-weight: 700;
   color: #000;
-  border-bottom: 2px solid #0000C9;
+  border-top: 2px solid #000;
+  border-bottom: 1px solid #000;
+  font-size: 13px;
 }
 
 .article-content :deep(td) {
-  padding: 10px 16px;
-  border-bottom: 1px solid #e5e7eb;
-  color: #333;
+  padding: 7px 12px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  color: #222;
+  font-size: 13px;
 }
 
-.article-content :deep(tr:hover) {
-  background: #fafafa;
+.article-content :deep(tbody tr:last-child td) {
+  border-bottom: 2px solid #000;
 }
 
+.article-content :deep(tbody tr:hover) {
+  background: transparent;
+}
+
+/* 引用 / 注释 */
 .article-content :deep(blockquote) {
-  margin: 20px 0 24px;
-  padding: 16px 20px;
-  border-left: 4px solid #0000C9;
-  background: #f8f9fa;
+  margin: 16px 0 20px;
+  padding: 10px 16px;
+  border-left: 3px solid #999;
+  background: transparent;
   color: #555;
-  font-size: 15px;
+  font-size: 13px;
+  font-style: normal;
 }
 
 .article-content :deep(blockquote p) {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
+  text-indent: 0;
 }
 
 .article-content :deep(blockquote p:last-child) {
   margin-bottom: 0;
 }
 
+/* 加粗 */
 .article-content :deep(strong) {
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: #000;
 }
 
+/* 斜体 */
 .article-content :deep(em) {
   font-style: italic;
 }
 
+/* 代码 */
 .article-content :deep(code) {
-  background: #f0f0f0;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 14px;
-  font-family: 'SFMono-Regular', Consolas, monospace;
+  background: #f5f5f5;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
 }
 
+/* 链接 */
 .article-content :deep(a) {
   color: #0000C9;
   text-decoration: none;
-  border-bottom: 1px solid rgba(0,0,201,0.3);
+  border-bottom: 1px solid rgba(0,0,201,0.25);
 }
 
 .article-content :deep(a:hover) {
   border-bottom-color: #0000C9;
 }
 
+/* 分割线 */
 .article-content :deep(hr) {
   border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 32px 0;
+  border-top: 1px solid #ccc;
+  margin: 28px 0;
 }
 
+/* 删除线 */
 .article-content :deep(del) {
   color: #999;
   text-decoration: line-through;
+}
+
+/* 脚注样式（blockquote 内最后一行灰色小字） */
+.article-content :deep(blockquote) {
+  font-family: 'Noto Sans SC', 'Source Han Sans SC', 'Microsoft YaHei', sans-serif;
 }
 
 .placeholder-content {
