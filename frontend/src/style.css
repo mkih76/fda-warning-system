@@ -1,36 +1,65 @@
+/* ═══════════════════════════════════════════════════════════════
+   FDA 警告信系统 - 主样式文件
+   简化版本：只保留必要的导入和变量映射
+═══════════════════════════════════════════════════════════════ */
+
+/* 导入设计系统 */
+@import './styles/design-tokens.css';
+
+/* Tailwind 指令 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 导入设计系统 */
+/* 导入其他样式（必须在 tailwind 之后） */
 @import './styles/base.css';
 @import './styles/animations.css';
 @import './styles/components.css';
 
-/* 保持向后兼容的变量映射 */
+/* ═══════════════════════════════════════════════════════════════
+   向后兼容的变量映射
+   旧页面（Home.vue, Letters.vue 等）使用的变量
+═══════════════════════════════════════════════════════════════ */
 :root {
+  /* 主色调 */
   --primary: #FFFFFF;
   --primary-rgb: 255, 255, 255;
   --accent: var(--color-primary-600);
   --accent-rgb: 37, 99, 235;
   --accent-dark: var(--color-primary-700);
   --accent-darker: var(--color-primary-900);
+
+  /* 背景色 */
   --surface: var(--bg-secondary);
   --surface-2: var(--bg-primary);
   --surface-3: var(--bg-tertiary);
+
+  /* 边框色 */
   --border: var(--border-default);
   --border-light: rgba(0, 0, 0, 0.08);
+
+  /* 文本色 */
   --text: var(--text-primary);
   --text-2: var(--text-secondary);
   --text-3: var(--text-tertiary);
+
+  /* 语义色 */
   --danger: var(--color-danger-600);
   --warning: var(--color-warning-500);
   --success: var(--color-success-600);
+
+  /* 阴影 */
   --card-shadow: var(--shadow-card);
   --card-shadow-hover: var(--shadow-card-hover);
 }
 
-* { box-sizing: border-box; }
+/* ═══════════════════════════════════════════════════════════════
+   全局基础样式（兼容新旧页面）
+═══════════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+}
 
 html {
   scroll-behavior: smooth;
@@ -39,157 +68,228 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background: var(--surface);
-  color: var(--text);
+  font-family: var(--font-sans);
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-primary, #0f172a);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  line-height: 1.5;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-a { color: inherit; text-decoration: none; }
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary, #f8fafc);
+}
 
-/* Navbar - Pfizer风格 */
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   旧页面使用的全局样式（保持兼容）
+   这些样式在新页面中会被 components.css 覆盖
+═══════════════════════════════════════════════════════════════ */
+
+/* Navbar */
 .navbar {
   background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid var(--border) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-bottom: 1px solid var(--border, #e2e8f0) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.navbar a, .navbar .nav-link { color: var(--text-2) !important; font-weight: 500; }
-.navbar a:hover, .navbar a.router-link-active { color: var(--accent) !important; }
 
-/* Cards - Pfizer白色卡片 */
+.navbar a,
+.navbar .nav-link {
+  color: var(--text-2, #475569) !important;
+  font-weight: 500;
+}
+
+.navbar a:hover,
+.navbar a.router-link-active {
+  color: var(--accent, #2563eb) !important;
+}
+
+/* Cards（旧页面） */
 .card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--surface-2, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
   border-radius: 12px;
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.08));
 }
 
-/* Buttons */
+/* Buttons（旧页面） */
 .btn-primary {
-  @apply inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200;
-  background: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  background: var(--accent, #2563eb);
   color: white;
+  border: none;
+  cursor: pointer;
 }
-.btn-primary:hover { 
-  background: var(--accent-dark); 
+
+.btn-primary:hover {
+  background: var(--accent-dark, #1d4ed8);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-outline {
-  @apply inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-all duration-200;
-  border: 1px solid var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  border: 1px solid var(--accent, #2563eb);
   background: transparent;
-  color: var(--accent);
-}
-.btn-outline:hover { 
-  background: rgba(var(--accent-rgb), 0.08); 
+  color: var(--accent, #2563eb);
 }
 
-/* Letter cards */
+.btn-outline:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* Letter cards（旧页面） */
 .letter-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--surface-2, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
   border-radius: 12px;
   transition: all 0.2s ease;
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.08));
 }
+
 .letter-card:hover {
-  border-color: var(--accent);
-  box-shadow: var(--card-shadow-hover);
+  border-color: var(--accent, #2563eb);
+  box-shadow: var(--card-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.12));
   transform: translateY(-2px);
 }
 
-/* Table */
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th {
-  text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600;
-  letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3);
-  background: var(--surface-3);
-  border-bottom: 2px solid var(--border);
+/* Tables（旧页面） */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
 }
-.data-table td {
-  padding: 14px 16px; font-size: 14px; color: var(--text);
-  border-bottom: 1px solid var(--border-light);
-}
-.data-table tr:hover td { background: var(--surface-3); }
 
-/* Footer - Pfizer风格 */
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3, #94a3b8);
+  background: var(--surface-3, #f1f5f9);
+  border-bottom: 2px solid var(--border, #e2e8f0);
+}
+
+.data-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text, #0f172a);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.data-table tr:hover td {
+  background: var(--surface-3, #f1f5f9);
+}
+
+/* Footer（旧页面） */
 .footer {
-  background: var(--accent-darker) !important;
+  background: var(--accent-darker, #1e3a8a) !important;
   color: white !important;
 }
 
-/* Input */
-input, select, textarea { 
+/* Inputs（旧页面） */
+input,
+select,
+textarea {
   font-family: inherit;
   background: white;
-  border: 1px solid var(--border);
-  color: var(--text);
+  border: 1px solid var(--border, #e2e8f0);
+  color: var(--text, #0f172a);
   border-radius: 8px;
 }
-input:focus, select:focus, textarea:focus {
+
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  border-color: var(--accent, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Vue router active */
-.router-link-active { color: var(--accent) !important; }
+/* Router link active */
+.router-link-active {
+  color: var(--accent, #2563eb) !important;
+}
 
-/* Badge - Pfizer风格 */
+/* Badges（旧页面） */
 .badge {
-  @apply px-3 py-1 rounded-full text-xs font-semibold;
-  background: rgba(var(--accent-rgb), 0.1);
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent, #2563eb);
 }
 
 .badge-danger {
   background: rgba(220, 38, 38, 0.1);
-  color: var(--danger);
+  color: var(--danger, #dc2626);
 }
 
 .badge-warning {
   background: rgba(245, 158, 11, 0.1);
-  color: var(--warning);
+  color: var(--warning, #f59e0b);
 }
 
 .badge-success {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
+  color: var(--success, #10b981);
 }
 
-/* Status dot */
+/* Status dot（旧页面） */
 .status-dot {
-  @apply w-2 h-2 rounded-full;
-  background: var(--accent);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent, #2563eb);
 }
 
-/* Hero section */
+/* Hero section（旧页面） */
 .hero-section {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-darker) 100%);
+  background: linear-gradient(135deg, var(--accent, #2563eb) 0%, var(--accent-darker, #1e3a8a) 100%);
   color: white;
 }
 
-/* Mobile */
+/* Mobile responsive */
 @media (max-width: 640px) {
-  .card { border-radius: 10px; }
+  .card {
+    border-radius: 10px;
+  }
 }
