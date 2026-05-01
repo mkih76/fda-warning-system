@@ -219,8 +219,8 @@
                   <span class="badge badge-dot" :class="getStatusBadgeClass(letter.status)">
                     {{ letter.status === 'active' ? '进行中' : '已关闭' }}
                   </span>
-                  <span v-if="letter.analysis?.risk_level" class="badge" :class="getRiskBadgeClass(letter.analysis.risk_level)">
-                    {{ letter.analysis.risk_level }}
+                  <span v-if="letter.risk_level" class="badge" :class="getRiskBadgeClass(letter.risk_level)">
+                    {{ letter.risk_level }}
                   </span>
                 </div>
                 <button
@@ -262,9 +262,9 @@
               </div>
 
               <!-- AI 分析预览 -->
-              <div v-if="letter.analysis?.summary_zh" class="letter-preview">
+              <div v-if="letter.summary_zh" class="letter-preview">
                 <div class="preview-label">AI 摘要</div>
-                <p class="preview-text">{{ letter.analysis.summary_zh }}</p>
+                <p class="preview-text">{{ letter.summary_zh }}</p>
               </div>
             </div>
           </div>
