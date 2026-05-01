@@ -1,14 +1,10 @@
-"""
-FDA 警告信 CRUD + 统计接口
-"""
-from datetime import date
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func, case
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import selectinload
-
+from sqlalchemy import select, func
+from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
 from ..database import get_db
-from ..models import WarningLetter, Violation, CfrCitation, AiAnalysis
+from ..models import WarningLetter, AiAnalysis, Violation, CFRCitation
 
 router = APIRouter()
 
@@ -25,7 +21,8 @@ async def list_letters(
     db: AsyncSession = Depends(get_db),
 ):
     """分页查询警告信列表，支持多条件筛选"""
-    stmt = select(WarningLetter)
+    # 主查询 + eager load ai_analysis
+    stmt = select(WarningLetter).options(selectinload(WarningLetter.ai_analysis))
 
     if office:
         stmt = stmt.where(WarningLetter.issuing_office == office)
@@ -39,30 +36,47 @@ async def list_letters(
         stmt = stmt.where(WarningLetter.posted_date <= date_to)
 
     # 总数
-    count_stmt = select(func.count()).select_from(stmt.subquery())
+    count_stmt = select(func.count()).select_from(WarningLetter)
+    if office:
+        count_stmt = count_stmt.where(WarningLetter.issuing_office == office)
+    if status:
+        count_stmt = count_stmt.where(WarningLetter.status == status)
+    if company:
+        count_stmt = count_stmt.where(WarningLetter.company_name.ilike(f"%{company}%"))
+    if date_from:
+        count_stmt = count_stmt.where(WarningLetter.posted_date >= date_from)
+    if date_to:
+        count_stmt = count_stmt.where(WarningLetter.posted_date <= date_to)
     total = (await db.execute(count_stmt)).scalar() or 0
 
     # 分页
     stmt = stmt.order_by(WarningLetter.posted_date.desc())\
                .offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(stmt)
-    items = result.scalars().all()
+    letters = result.scalars().all()
+
+    items = []
+    for letter in letters:
+        analysis = letter.ai_analysis
+        items.append({
+            "id": letter.id,
+            "fda_id": letter.fda_id,
+            "company_name": letter.company_name,
+            "subject": letter.subject,
+            "issuing_office": letter.issuing_office,
+            "issue_date": str(letter.issue_date) if letter.issue_date else None,
+            "posted_date": str(letter.posted_date) if letter.posted_date else None,
+            "status": letter.status,
+            "fei_number": letter.fei_number,
+            "country": letter.country,
+            "translation_zh": analysis.translation_zh if analysis else None,
+            "summary_zh": analysis.summary_zh if analysis else None,
+            "violation_type": analysis.violation_type if analysis else None,
+            "risk_level": analysis.risk_level if analysis else None,
+        })
 
     return {
-        "items": [
-            {
-                "id": l.id,
-                "fda_id": l.fda_id,
-                "company_name": l.company_name,
-                "subject": l.subject,
-                "issuing_office": l.issuing_office,
-                "posted_date": str(l.posted_date) if l.posted_date else None,
-                "status": l.status,
-                "fei_number": l.fei_number,
-                "country": l.country,
-            }
-            for l in items
-        ],
+        "items": items,
         "total": total,
         "page": page,
         "per_page": per_page,
@@ -76,15 +90,48 @@ async def get_letter(letter_id: int, db: AsyncSession = Depends(get_db)):
         select(WarningLetter)
         .options(
             selectinload(WarningLetter.violations),
-            selectinload(WarningLetter.citations),
-            selectinload(WarningLetter.analysis),
+            selectinload(WarningLetter.cfr_citations),
+            selectinload(WarningLetter.ai_analysis),
         )
         .where(WarningLetter.id == letter_id)
     )
     result = await db.execute(stmt)
-    letter = result.scalar_one_or_none()
+    letter = result.scalars().first()
+
     if not letter:
-        raise HTTPException(404, detail="警告信不存在")
+        raise HTTPException(status_code=404, detail="Letter not found")
+
+    analysis = letter.ai_analysis
+    analysis_out = None
+    if analysis:
+        analysis_out = {
+            "summary_en": analysis.summary_en,
+            "summary_zh": analysis.summary_zh,
+            "translation_zh": analysis.translation_zh,
+            "violation_type": analysis.violation_type,
+            "risk_level": analysis.risk_level,
+            "key_findings": analysis.key_findings,
+            "model_used": getattr(analysis, 'model_used', None),
+        }
+
+    violations_out = []
+    for v in (letter.violations or []):
+        violations_out.append({
+            "id": v.id,
+            "violation_type": v.violation_type,
+            "description": v.description,
+            "cfr_reference": v.cfr_reference,
+            "severity": v.severity,
+        })
+
+    cfr_out = []
+    for c in (letter.cfr_citations or []):
+        cfr_out.append({
+            "id": c.id,
+            "cfr_section": c.cfr_section,
+            "title": c.title,
+            "description": c.description,
+        })
 
     return {
         "id": letter.id,
@@ -92,85 +139,73 @@ async def get_letter(letter_id: int, db: AsyncSession = Depends(get_db)):
         "company_name": letter.company_name,
         "subject": letter.subject,
         "issuing_office": letter.issuing_office,
-        "posted_date": str(letter.posted_date) if letter.posted_date else None,
         "issue_date": str(letter.issue_date) if letter.issue_date else None,
+        "posted_date": str(letter.posted_date) if letter.posted_date else None,
         "fei_number": letter.fei_number,
         "country": letter.country,
-        "full_text": letter.full_text_clean or letter.full_text,
+        "full_text": letter.full_text,
+        "full_text_clean": letter.full_text_clean,
         "url": letter.url,
         "status": letter.status,
-        "closeout_date": str(letter.closeout_date) if letter.closeout_date else None,
-        "violations": [
-            {
-                "system_category": v.system_category,
-                "violation_type": v.violation_type,
-                "severity": v.severity,
-                "description": v.description,
-                "description_zh": v.description_zh,
-            }
-            for v in (letter.violations or [])
-        ],
-        "citations": [
-            {"cfr_part": c.cfr_part, "cfr_section": c.cfr_section, "cfr_text": c.cfr_text}
-            for c in (letter.citations or [])
-        ],
-        "analysis": {
-            "summary_en": letter.analysis.summary_en,
-            "summary_zh": letter.analysis.summary_zh,
-            "key_findings": letter.analysis.key_findings,
-        }
-        if letter.analysis
-        else None,
+        "region": letter.region,
+        "analysis": analysis_out,
+        "violations": violations_out,
+        "cfr_citations": cfr_out,
     }
 
 
 @router.get("/company/{company_name:path}")
-async def get_company_timeline(company_name: str, db: AsyncSession = Depends(get_db)):
-    """查询企业全链路追踪时间线"""
+async def get_company_letters(company_name: str, db: AsyncSession = Depends(get_db)):
+    """获取某公司的所有警告信"""
     stmt = (
         select(WarningLetter)
+        .options(selectinload(WarningLetter.ai_analysis))
         .where(WarningLetter.company_name.ilike(f"%{company_name}%"))
         .order_by(WarningLetter.posted_date.desc())
     )
     result = await db.execute(stmt)
     letters = result.scalars().all()
 
-    return [
-        {
-            "fda_id": l.fda_id,
-            "subject": l.subject,
-            "posted_date": str(l.posted_date),
-            "status": l.status,
-            "issuing_office": l.issuing_office,
-            "closeout_date": str(l.closeout_date) if l.closeout_date else None,
-            "fei_number": l.fei_number,
-        }
-        for l in letters
-    ]
+    items = []
+    for letter in letters:
+        analysis = letter.ai_analysis
+        items.append({
+            "id": letter.id,
+            "fda_id": letter.fda_id,
+            "company_name": letter.company_name,
+            "subject": letter.subject,
+            "issuing_office": letter.issuing_office,
+            "issue_date": str(letter.issue_date) if letter.issue_date else None,
+            "status": letter.status,
+            "translation_zh": analysis.translation_zh if analysis else None,
+            "summary_zh": analysis.summary_zh if analysis else None,
+        })
+
+    return {"items": items, "total": len(items)}
 
 
 @router.get("/stats/offices")
 async def get_office_stats(db: AsyncSession = Depends(get_db)):
-    """各签发办公室警告信数量统计"""
+    """各签发办公室统计"""
     stmt = (
         select(WarningLetter.issuing_office, func.count(WarningLetter.id))
-        .where(WarningLetter.issuing_office.isnot(None))
         .group_by(WarningLetter.issuing_office)
         .order_by(func.count(WarningLetter.id).desc())
     )
     result = await db.execute(stmt)
-    return [{"office": row[0], "count": row[1]} for row in result]
+    return [{"office": row[0], "count": row[1]} for row in result.all()]
 
 
 @router.get("/stats/timeline")
-async def get_timeline_stats(year: int = None, db: AsyncSession = Depends(get_db)):
-    """年度时间线统计"""
-    stmt = select(
-        func.strftime("%Y", WarningLetter.posted_date).label("year"),
-        func.count(WarningLetter.id).label("count"),
+async def get_timeline_stats(db: AsyncSession = Depends(get_db)):
+    """按月统计时间线"""
+    stmt = (
+        select(
+            func.strftime("%Y-%m", WarningLetter.posted_date).label("month"),
+            func.count(WarningLetter.id)
+        )
+        .group_by("month")
+        .order_by("month")
     )
-    if year:
-        stmt = stmt.where(func.strftime("%Y", WarningLetter.posted_date) == str(year))
-    stmt = stmt.group_by("year").order_by("year")
     result = await db.execute(stmt)
-    return [{"year": row[0], "count": row[1]} for row in result]
+    return [{"month": row[0], "count": row[1]} for row in result.all() if row[0]]

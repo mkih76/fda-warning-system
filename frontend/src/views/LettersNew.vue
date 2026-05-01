@@ -240,7 +240,7 @@
               <div class="letter-content">
                 <div class="letter-id">{{ letter.fda_id }}</div>
                 <h3 class="letter-company">{{ letter.company_name }}</h3>
-                <p class="letter-subject">{{ letter.subject }}</p>
+                <p class="letter-subject">{{ cleanText(letter.summary_zh || letter.subject) }}</p>
               </div>
 
               <!-- 卡片元数据 -->
@@ -328,6 +328,12 @@ import SearchSuggestions from '../components/SearchSuggestions.vue'
 
 const API = window.location.origin + '/api'
 const { isFavorite, toggleFavorite } = useFavorites()
+
+// 过滤 *# 等无关注释符号
+function cleanText(text) {
+  if (!text) return ''
+  return text.replace(/[*#]/g, '').replace(/\s+/g, ' ').trim()
+}
 
 // 状态
 const letters = ref([])

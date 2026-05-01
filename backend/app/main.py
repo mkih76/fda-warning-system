@@ -5,7 +5,7 @@ from fastapi import FastAPI, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import desc, or_, func, text as sql_text
 from pydantic import BaseModel
 from typing import Optional, List
@@ -151,7 +151,7 @@ class PaginatedLetters(BaseModel):
     page_size: int
 
 
-@app.get("/api/letters", response_model=PaginatedLetters)
+@app.get("/api/letters")
 def list_letters(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -203,12 +203,34 @@ def list_letters(
 
     total = q.count()
     letters = (
-        q.order_by(desc(models.WarningLetter.issue_date))
+        q.options(selectinload(models.WarningLetter.ai_analysis))
+        .order_by(desc(models.WarningLetter.issue_date))
         .offset((page - 1) * page_size)
         .limit(page_size)
         .all()
     )
-    return PaginatedLetters(items=letters, total=total, page=page, page_size=page_size)
+    # Convert to dicts with translation fields
+    items = []
+    for letter in letters:
+        a = letter.ai_analysis
+        items.append({
+            "id": letter.id,
+            "fda_id": letter.fda_id,
+            "company_name": letter.company_name,
+            "subject": letter.subject,
+            "issuing_office": letter.issuing_office,
+            "issue_date": str(letter.issue_date) if letter.issue_date else None,
+            "posted_date": str(letter.posted_date) if letter.posted_date else None,
+            "country": letter.country,
+            "region": letter.region,
+            "status": letter.status,
+            "url": letter.url,
+            "translation_zh": a.translation_zh if a else None,
+            "summary_zh": a.summary_zh if a else None,
+            "violation_type": a.violation_type if a else None,
+            "risk_level": a.risk_level if a else None,
+        })
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
 
 
 @app.get("/api/letters/{letter_id}")
